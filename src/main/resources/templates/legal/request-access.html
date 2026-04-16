@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Request Evidence Access</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(145deg, #f7f7ff 0%, #ecf7f9 100%);
+            color: #1f2b3f;
+        }
+        .container {
+            max-width: 760px;
+            margin: 40px auto;
+            background: #ffffff;
+            border-radius: 14px;
+            box-shadow: 0 12px 26px rgba(18, 31, 53, 0.11);
+            padding: 28px;
+        }
+        label {
+            display: block;
+            margin: 14px 0 6px;
+            font-weight: 600;
+        }
+        select, input, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccd8ea;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            box-sizing: border-box;
+        }
+        textarea {
+            min-height: 110px;
+        }
+        .actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 18px;
+        }
+        button, .link {
+            border: 0;
+            border-radius: 8px;
+            padding: 10px 16px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 0.95rem;
+        }
+        button {
+            background: #1250a8;
+            color: #ffffff;
+        }
+        .link {
+            background: #ecf2ff;
+            color: #1250a8;
+        }
+        .message {
+            border-radius: 8px;
+            padding: 10px 12px;
+            margin-bottom: 12px;
+        }
+        .error {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Request Evidence Access</h1>
+
+    <div th:if="${errorMessage}" class="message error" th:text="${errorMessage}">Error message</div>
+
+    <form th:action="@{/legal/access}" method="post" th:object="${accessRequestForm}">
+        <label for="evidenceId">Evidence ID</label>
+        <select id="evidenceId" th:field="*{evidenceId}" required>
+            <option value="">Select evidence</option>
+            <option th:each="evidenceId : ${evidenceOptions}" th:value="${evidenceId}" th:text="${evidenceId}">EVD-0000</option>
+        </select>
+
+        <label for="reason">Reason / Purpose</label>
+        <textarea id="reason" th:field="*{reason}" maxlength="500" required></textarea>
+
+        <label for="caseNumber">Case Number</label>
+        <input id="caseNumber" type="text" th:field="*{caseNumber}" maxlength="50" required>
+
+        <div class="actions">
+            <button type="submit">Submit Request</button>
+            <a class="link" th:href="@{/legal/access/status}">View Request Status</a>
+        </div>
+    </form>
+</div>
+</body>
+</html>
