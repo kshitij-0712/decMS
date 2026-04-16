@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/fragments :: appHead('Custody Dashboard')}"></head>
+<body>
+<div th:replace="~{layout/fragments :: appBackdrop}"></div>
+
+<div class="app-shell">
+    <aside th:replace="~{layout/fragments :: sideNav('for-custody')}"></aside>
+    <main class="app-main">
+        <header th:replace="~{layout/fragments :: topBar('Custody Dashboard', 'Forensic workspace shell')}"></header>
+        <section class="app-content">
+            <article class="card">
+                <h2>Recent custody events</h2>
+                <p>This page uses the shared table and card shells. Connect forensic service data during branch integration.</p>
+                <table class="table">
+                    <thead>
+                    <tr><th>Log ID</th><th>Evidence</th><th>Action</th><th>Actor</th><th>Timestamp</th></tr>
+                    </thead>
+                    <tbody>
+                    <tr><td class="mono">LOG-001</td><td>E-001</td><td>UPLOAD</td><td>inv-001</td><td>2026-04-13 09:40</td></tr>
+                    </tbody>
+                </table>
+            </article>
+        </section>
+    </main>
+</div>
+
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

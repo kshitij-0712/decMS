@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/fragments :: appHead('User Form')}"></head>
+<body>
+<div th:replace="~{layout/fragments :: appBackdrop}"></div>
+
+<div class="app-shell">
+    <aside th:replace="~{layout/fragments :: sideNav('adm-users')}"></aside>
+    <main class="app-main">
+        <header th:replace="~{layout/fragments :: topBar('Create or Edit User', 'Factory Method integration point')}"></header>
+        <section class="app-content">
+            <article class="card">
+                <h2>User form</h2>
+                <form class="form-grid">
+                    <label><span>Name</span><input type="text"></label>
+                    <label><span>Email</span><input type="email"></label>
+                    <label><span>Department</span><input type="text"></label>
+                    <label><span>Role</span><select><option>INVESTIGATOR</option><option>FORENSIC_ANALYST</option><option>LEGAL_OFFICER</option><option>ADMINISTRATOR</option></select></label>
+                    <button class="btn btn-primary" type="button">Save User</button>
+                </form>
+            </article>
+        </section>
+    </main>
+</div>
+
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

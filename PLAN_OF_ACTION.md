@@ -538,6 +538,28 @@ Likith  → admin/controller + service + templates (UC-04, UC-07)
           + ReportFormatter interface + implementations
 ```
 
+> Integration note: section 7 ownership mapping is authoritative for member-role assignment. The role-name mapping in this phase block contains a swap typo from planning drafts.
+
+### Shared UI system baseline (cross-role contract)
+
+All role workflows must reuse a single visual system so teams only integrate feature logic in their templates.
+
+- Shell and fragments:
+  - `src/main/resources/templates/layout/base.html`
+  - `src/main/resources/templates/layout/fragments.html`
+- Shared style and behavior:
+  - `src/main/resources/static/css/styles.css`
+  - `src/main/resources/static/js/app.js`
+- Component reference page:
+  - `src/main/resources/templates/layout/ui-kit.html`
+
+Reuse rules:
+- Reuse `app-shell`, sidebar, topbar, alert stack for all role pages.
+- Reuse `card`, `table`, `badge-*`, `timeline`, `form-grid`, `btn-*` classes.
+- Avoid role-specific CSS for baseline features.
+- Add new reusable component in UI kit first, then consume in role templates.
+- Preserve responsive behavior for desktop and mobile from shared breakpoints.
+
 ### Phase C: Integration & cross-cutting wiring (all members, days 11-13)
 
 ```

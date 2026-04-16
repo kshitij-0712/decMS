@@ -38,6 +38,27 @@ Deliver the complete Investigator vertical slice (`controller + service + views`
 - Persists evidence data through `EvidenceRepository` and related model classes.
 - Triggers custody logging through `CustodyLogService` for upload and view operations.
 
+## Shared UI Foundation for Team Integration
+
+This branch now includes a reusable role-agnostic UI system so all members can attach their feature logic without redesigning layouts.
+
+- Shared shell and fragments:
+  - `src/main/resources/templates/layout/base.html`
+  - `src/main/resources/templates/layout/fragments.html`
+- Shared style/behavior:
+  - `src/main/resources/static/css/styles.css`
+  - `src/main/resources/static/js/app.js`
+- UI reference page:
+  - `src/main/resources/templates/layout/ui-kit.html`
+
+### Reuse Contract
+
+- Keep role pages inside the common app shell (`app-shell`, sidebar, topbar, alert stack).
+- Reuse shared components (`card`, `table`, `badge-*`, `timeline`, `form-grid`, `btn-*`).
+- Avoid role-specific CSS files for baseline workflows.
+- Add any new visual component in `ui-kit.html` first, then consume in role templates.
+- Preserve responsive behavior from shared breakpoints for desktop/mobile parity.
+
 ## Pattern and Principle Ownership
 
 - Design pattern contribution: Factory Method (`common/factory/UserFactory.java`)

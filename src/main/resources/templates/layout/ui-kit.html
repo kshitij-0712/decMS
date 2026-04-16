@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/fragments :: appHead('UI Kit')}"></head>
+<body>
+<div th:replace="~{layout/fragments :: appBackdrop}"></div>
+
+<main class="ui-kit-shell">
+    <header class="ui-kit-header">
+        <h1>Shared UI Kit</h1>
+        <p>Reusable components for investigator, forensic, legal, and admin templates.</p>
+    </header>
+
+    <section class="panel">
+        <h2>Buttons</h2>
+        <div class="button-row">
+            <button class="btn btn-primary">Primary Action</button>
+            <button class="btn btn-secondary">Secondary Action</button>
+            <button class="btn btn-ghost">Ghost Action</button>
+            <button class="btn btn-danger">Danger Action</button>
+        </div>
+    </section>
+
+    <section class="panel">
+        <h2>Status badges</h2>
+        <div class="button-row">
+            <span class="badge badge-sealed">SEALED</span>
+            <span class="badge badge-verified">VERIFIED</span>
+            <span class="badge badge-analyzed">ANALYZED</span>
+            <span class="badge badge-archived">ARCHIVED</span>
+            <span class="badge badge-pending">PENDING</span>
+            <span class="badge badge-approved">APPROVED</span>
+            <span class="badge badge-denied">DENIED</span>
+        </div>
+    </section>
+
+    <section class="panel">
+        <h2>Card + table shell</h2>
+        <div class="grid-two">
+            <article class="card">
+                <h3>Metadata card</h3>
+                <dl class="meta-grid">
+                    <dt>Evidence ID</dt>
+                    <dd>EV-EXAMPLE-001</dd>
+                    <dt>Case ID</dt>
+                    <dd>CASE-2309-A</dd>
+                    <dt>Hash</dt>
+                    <dd class="mono">4f5a7bc00bd2de31...</dd>
+                </dl>
+            </article>
+
+            <article class="card">
+                <h3>Timeline shell</h3>
+                <ul class="timeline">
+                    <li>
+                        <span class="timeline-dot"></span>
+                        <div>
+                            <strong>UPLOAD</strong>
+                            <p>Investigator created evidence record.</p>
+                        </div>
+                    </li>
+                    <li>
+                        <span class="timeline-dot"></span>
+                        <div>
+                            <strong>VIEW</strong>
+                            <p>Evidence opened for validation.</p>
+                        </div>
+                    </li>
+                </ul>
+            </article>
+        </div>
+
+        <table class="table">
+            <thead>
+            <tr>
+                <th>Evidence ID</th>
+                <th>Case</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td class="mono">E-001</td>
+                <td>CASE-001</td>
+                <td><span class="badge badge-sealed">SEALED</span></td>
+                <td><a href="#" class="link">Open</a></td>
+            </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <section class="panel">
+        <h2>Form shell</h2>
+        <form class="form-grid">
+            <label>
+                <span>Case ID</span>
+                <input type="text" placeholder="CASE-001">
+            </label>
+            <label>
+                <span>Evidence Type</span>
+                <select>
+                    <option>DOCUMENT</option>
+                    <option>IMAGE</option>
+                </select>
+            </label>
+            <label class="field-full">
+                <span>Description</span>
+                <textarea rows="4" placeholder="Case notes"></textarea>
+            </label>
+            <button class="btn btn-primary" type="button">Submit</button>
+        </form>
+    </section>
+</main>
+
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

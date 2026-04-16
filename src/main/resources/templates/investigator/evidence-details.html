@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/fragments :: appHead('Evidence Details')}"></head>
+<body>
+<div th:replace="~{layout/fragments :: appBackdrop}"></div>
+
+<div class="app-shell">
+    <aside th:replace="~{layout/fragments :: sideNav('inv-list')}"></aside>
+    <main class="app-main">
+        <header th:replace="~{layout/fragments :: topBar('Evidence Details', 'UC-06 metadata, hash, and custody summary')}"></header>
+
+        <section class="app-content" th:if="${details}">
+            <div class="grid-two">
+                <article class="card">
+                    <h2>Metadata</h2>
+                    <dl class="meta-grid">
+                        <dt>Evidence ID</dt>
+                        <dd class="mono" th:text="${details.evidenceId}">id</dd>
+                        <dt>Case ID</dt>
+                        <dd th:text="${details.caseId}">case</dd>
+                        <dt>Type</dt>
+                        <dd th:text="${details.evidenceType}">type</dd>
+                        <dt>File Size</dt>
+                        <dd th:text="${T(java.lang.String).format('%,d bytes', details.fileSize)}">size</dd>
+                        <dt>Status</dt>
+                        <dd>
+                            <span class="badge" th:classappend="|badge-${#strings.toLowerCase(details.status)}|" th:text="${details.status}">
+                                SEALED
+                            </span>
+                        </dd>
+                        <dt>Uploaded By</dt>
+                        <dd th:text="${details.uploadedByName}">uploader</dd>
+                        <dt>Uploaded At</dt>
+                        <dd th:text="${#temporals.format(details.uploadedAt, 'yyyy-MM-dd HH:mm:ss')}">time</dd>
+                        <dt>Description</dt>
+                        <dd th:text="${details.description}">desc</dd>
+                        <dt>Hash</dt>
+                        <dd class="mono" th:text="${details.hashValue}">hash</dd>
+                        <dt>Algorithm</dt>
+                        <dd th:text="${details.hashAlgorithm}">SHA-256</dd>
+                    </dl>
+
+                    <div class="button-row">
+                        <a th:href="@{/investigator/evidence}" class="btn btn-secondary">Back to List</a>
+                        <a th:href="@{/investigator/upload}" class="btn btn-ghost">Upload New</a>
+                    </div>
+                </article>
+
+                <article class="card">
+                    <h2>Custody summary</h2>
+                    <ul class="timeline" th:if="${!#lists.isEmpty(details.custodyEvents)}">
+                        <li th:each="event : ${details.custodyEvents}">
+                            <span class="timeline-dot"></span>
+                            <div>
+                                <strong th:text="${event.actionType}">VIEW</strong>
+                                <p>
+                                    <span th:text="${event.actorName}">actor</span>
+                                    (<span th:text="${event.actorRole}">role</span>)
+                                    from <span th:text="${event.ipAddress}">ip</span>
+                                </p>
+                                <small th:text="${#temporals.format(event.timestamp, 'yyyy-MM-dd HH:mm:ss')}">time</small>
+                            </div>
+                        </li>
+                    </ul>
+
+                    <div class="empty-state" th:if="${#lists.isEmpty(details.custodyEvents)}">
+                        <h3>No custody events</h3>
+                        <p>Events will appear after upload/view/verify/access operations.</p>
+                    </div>
+                </article>
+            </div>
+        </section>
+    </main>
+</div>
+
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>
