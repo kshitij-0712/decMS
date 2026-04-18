@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/fragments :: appHead('Access Requests')}"></head>
+<body>
+<div th:replace="~{layout/fragments :: appBackdrop}"></div>
+
+<div class="app-shell">
+    <aside th:replace="~{layout/fragments :: sideNav('adm-users')}"></aside>
+    <main class="app-main">
+        <header th:replace="~{layout/fragments :: topBar('Access Request Queue', 'Admin approval shell for UC-05')}"></header>
+        <section class="app-content">
+            <article class="card">
+                <h2>Pending approvals</h2>
+                <table class="table">
+                    <thead><tr><th>Request</th><th>Evidence</th><th>Requester</th><th>Status</th><th>Action</th></tr></thead>
+                    <tbody>
+                    <tr>
+                        <td class="mono">REQ-2026-01</td>
+                        <td>E-001</td>
+                        <td>legal-001</td>
+                        <td><span class="badge badge-pending">PENDING</span></td>
+                        <td class="button-row">
+                            <button class="btn btn-primary" type="button">Approve</button>
+                            <button class="btn btn-danger" type="button">Deny</button>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </article>
+        </section>
+    </main>
+</div>
+
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

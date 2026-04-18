@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:fragment="appHead(title)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="'DECMS | ' + ${title}">DECMS</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+
+<body>
+<div th:fragment="appBackdrop" aria-hidden="true">
+    <div class="bg-orb bg-orb-a"></div>
+    <div class="bg-orb bg-orb-b"></div>
+    <div class="bg-grid"></div>
+</div>
+
+<aside th:fragment="sideNav(activePage)" class="app-sidebar">
+    <a class="brand" th:href="@{/investigator/upload}">
+        <span class="brand-mark">DE</span>
+        <span class="brand-text">
+            <strong>DECMS</strong>
+            <small>Evidence Platform</small>
+        </span>
+    </a>
+
+    <section class="nav-group" sec:authorize="hasRole('INVESTIGATOR')">
+        <h4>Investigator</h4>
+        <a class="nav-link" th:href="@{/investigator/upload}"
+           th:classappend="${activePage == 'inv-upload'} ? ' active'">
+            Upload & Seal
+        </a>
+        <a class="nav-link" th:href="@{/investigator/evidence}"
+           th:classappend="${activePage == 'inv-list'} ? ' active'">
+            Evidence Browser
+        </a>
+    </section>
+
+    <section class="nav-group" sec:authorize="hasRole('FORENSIC_ANALYST')">
+        <h4>Forensic</h4>
+        <a class="nav-link" th:href="@{/forensic/custody}"
+           th:classappend="${activePage == 'for-custody'} ? ' active'">
+            Custody Dashboard
+        </a>
+        <a class="nav-link" th:href="@{/forensic/history}"
+           th:classappend="${activePage == 'for-history'} ? ' active'">
+            Custody History
+        </a>
+    </section>
+
+    <section class="nav-group" sec:authorize="hasRole('LEGAL_OFFICER')">
+        <h4>Legal</h4>
+        <a class="nav-link" th:href="@{/legal/verify}"
+           th:classappend="${activePage == 'leg-verify'} ? ' active'">
+            Verify Integrity
+        </a>
+        <a class="nav-link" th:href="@{/legal/access}"
+           th:classappend="${activePage == 'leg-access'} ? ' active'">
+            Access Requests
+        </a>
+    </section>
+
+    <section class="nav-group" sec:authorize="hasRole('ADMINISTRATOR')">
+        <h4>Administrator</h4>
+        <a class="nav-link" th:href="@{/admin/reports}"
+           th:classappend="${activePage == 'adm-reports'} ? ' active'">
+            Audit Reports
+        </a>
+        <a class="nav-link" th:href="@{/admin/users}"
+           th:classappend="${activePage == 'adm-users'} ? ' active'">
+            Users & Roles
+        </a>
+    </section>
+
+    <section class="nav-group nav-group-muted">
+        <h4>Integration Notes</h4>
+        <p>Reuse cards, tables, form shells, badges, and timeline components for all role templates.</p>
+    </section>
+</aside>
+
+<header th:fragment="topBar(title, subtitle)" class="topbar">
+    <div>
+        <h1 th:text="${title}">Workspace</h1>
+        <p th:text="${subtitle}">Operational dashboard</p>
+    </div>
+    <div class="topbar-actions">
+        <a class="chip chip-link" th:href="@{/investigator/upload}" sec:authorize="hasRole('INVESTIGATOR')">New Upload</a>
+        <span class="chip" sec:authorize="isAuthenticated()">
+            <span sec:authentication="name">user</span>
+        </span>
+        <form th:action="@{/logout}" method="post" sec:authorize="isAuthenticated()">
+            <button type="submit" class="chip chip-danger">Sign out</button>
+        </form>
+    </div>
+</header>
+
+<div th:fragment="alerts" class="alerts-stack">
+    <div th:if="${error}" class="alert alert-error" data-dismissible="true" th:text="${error}">Error message</div>
+    <div th:if="${warning}" class="alert alert-warning" data-dismissible="true" th:text="${warning}">Warning message</div>
+    <div th:if="${success}" class="alert alert-success" data-dismissible="true" th:text="${success}">Success message</div>
+    <div th:if="${message}" class="alert alert-info" data-dismissible="true" th:text="${message}">Info message</div>
+</div>
+
+<span th:fragment="statusBadge(status)"
+      class="badge"
+      th:classappend="|badge-${#strings.toLowerCase(status)}|"
+      th:text="${status}">
+    SEALED
+</span>
+</body>
+</html>

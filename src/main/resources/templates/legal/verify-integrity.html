@@ -1,70 +1,50 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Verify Evidence Integrity</title>
-    <style>
-        body {
-            margin: 0;
-            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #f3f8ff 0%, #e8f0ff 100%);
-            color: #16213b;
-        }
-        .container {
-            max-width: 760px;
-            margin: 40px auto;
-            background: #ffffff;
-            border-radius: 14px;
-            box-shadow: 0 12px 30px rgba(20, 33, 61, 0.12);
-            padding: 28px;
-        }
-        h1 {
-            margin-top: 0;
-            font-size: 1.7rem;
-        }
-        .hint {
-            color: #51607a;
-            margin-bottom: 20px;
-        }
-        ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            display: grid;
-            gap: 12px;
-        }
-        li {
-            border: 1px solid #d8e2f2;
-            border-radius: 10px;
-            padding: 14px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        button {
-            background: #1456b8;
-            border: 0;
-            color: #fff;
-            padding: 10px 14px;
-            border-radius: 8px;
-            cursor: pointer;
-        }
-    </style>
-</head>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/fragments :: appHead('Verify Integrity')}"></head>
 <body>
-<div class="container">
-    <h1>Verify Evidence Integrity</h1>
-    <p class="hint">Select evidence and run a legal integrity check.</p>
+<div th:replace="~{layout/fragments :: appBackdrop}"></div>
 
-    <ul>
-        <li th:each="evidenceId : ${evidenceOptions}">
-            <span th:text="${evidenceId}">EVD-0000</span>
-            <form th:action="@{'/legal/verify/' + ${evidenceId}}" method="post">
-                <button type="submit">Verify</button>
-            </form>
-        </li>
-    </ul>
+<div class="app-shell">
+    <aside th:replace="~{layout/fragments :: sideNav('leg-verify')}"></aside>
+    <main class="app-main">
+        <header th:replace="~{layout/fragments :: topBar('Verify Evidence Integrity', 'UC-03 legal verification workflow')}"></header>
+        <section class="app-content">
+            <div th:replace="~{layout/fragments :: alerts}"></div>
+
+            <article class="card">
+                <h2>Select evidence for verification</h2>
+                <p>Run a SHA-256 comparison for stored and computed hashes.</p>
+
+                <div class="table-wrap" th:if="${!#lists.isEmpty(evidenceOptions)}">
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th>Evidence ID</th>
+                            <th>Action</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="evidenceId : ${evidenceOptions}">
+                            <td class="mono" th:text="${evidenceId}">EVD-0000</td>
+                            <td>
+                                <form th:action="@{/legal/verify/{evidenceId}(evidenceId=${evidenceId})}" method="post">
+                                    <button type="submit" class="btn btn-primary">Verify Integrity</button>
+                                </form>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="empty-state" th:if="${#lists.isEmpty(evidenceOptions)}">
+                    <h3>No evidence available</h3>
+                    <p>Evidence options will appear after investigator uploads records.</p>
+                </div>
+            </article>
+        </section>
+    </main>
 </div>
+
+<script th:src="@{/js/app.js}"></script>
 </body>
 </html>

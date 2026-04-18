@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/fragments :: appHead('Access Denied')}"></head>
+<body>
+<div th:replace="~{layout/fragments :: appBackdrop}"></div>
+
+<main class="auth-shell">
+    <section class="auth-card">
+        <header>
+            <p class="eyebrow">Authorization</p>
+            <h1>Access denied</h1>
+            <p>Your role does not have permission to view this resource.</p>
+        </header>
+        <div class="button-row">
+            <a th:href="@{/}" class="btn btn-primary">Go to Home</a>
+            <a th:href="@{/login}" class="btn btn-secondary">Switch Account</a>
+        </div>
+    </section>
+</main>
+
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

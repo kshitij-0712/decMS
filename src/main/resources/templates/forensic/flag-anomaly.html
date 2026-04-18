@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/fragments :: appHead('Flag Anomaly')}"></head>
+<body>
+<div th:replace="~{layout/fragments :: appBackdrop}"></div>
+
+<div class="app-shell">
+    <aside th:replace="~{layout/fragments :: sideNav('for-history')}"></aside>
+    <main class="app-main">
+        <header th:replace="~{layout/fragments :: topBar('Flag Suspicious Access', 'Observer trigger shell')}"></header>
+        <section class="app-content">
+            <article class="card">
+                <h2>Manual anomaly note</h2>
+                <form class="form-grid">
+                    <label><span>Evidence ID</span><input type="text" placeholder="E-001"></label>
+                    <label class="field-full"><span>Reason</span><textarea rows="4"></textarea></label>
+                    <button class="btn btn-danger" type="button">Flag anomaly</button>
+                </form>
+            </article>
+        </section>
+    </main>
+</div>
+
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>
