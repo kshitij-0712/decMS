@@ -17,6 +17,7 @@
 
                 <div class="stack-list">
                     <p><strong>Evidence ID:</strong> <span class="mono" th:text="${verification.evidenceId}">EVD-0000</span></p>
+                    <p><strong>Case Number:</strong> <span th:text="${verification.caseNumber} ?: 'N/A'">CASE-0000</span></p>
                     <p><strong>Stored Hash:</strong> <span class="mono" th:text="${verification.storedHash} ?: 'N/A'">N/A</span></p>
                     <p><strong>Computed Hash:</strong> <span class="mono" th:text="${verification.computedHash} ?: 'N/A'">N/A</span></p>
                 </div>
@@ -29,7 +30,10 @@
 
                 <div class="button-row">
                     <a class="btn btn-primary" th:href="@{/legal/verify}">Run Another Verification</a>
-                    <a class="btn btn-secondary" th:href="@{/legal/access}">Request Access</a>
+                    <a class="btn btn-secondary"
+                       th:href="@{/legal/access(evidenceId=${verification.evidenceId}, caseNumber=${verification.caseNumber})}">
+                        Request Access
+                    </a>
                 </div>
             </article>
         </section>

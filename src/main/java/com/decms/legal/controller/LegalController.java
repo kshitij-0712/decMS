@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -43,32 +44,46 @@ public class LegalController {
     public String verifyEvidence(@PathVariable String evidenceId,
                                  Authentication authentication,
                                  HttpServletRequest request,
-                                 Model model,
                                  RedirectAttributes redirectAttributes) {
         if (authentication == null || authentication.getName() == null) {
             redirectAttributes.addFlashAttribute("error", "Unable to identify legal user.");
             return "redirect:/legal/verify";
         }
 
-        VerificationResponse response;
         try {
-            response = verificationService.verifyEvidenceIntegrity(
+            VerificationResponse response = verificationService.verifyEvidenceIntegrity(
                     evidenceId,
                     authentication.getName(),
                     request.getRemoteAddr()
             );
+
+            redirectAttributes.addFlashAttribute("lastVerification", response);
+            if (response.isIntegrityVerified()) {
+                redirectAttributes.addFlashAttribute("success", "Integrity verified for evidence " + evidenceId + ".");
+            } else {
+                redirectAttributes.addFlashAttribute("warning", "Tampering detected for evidence " + evidenceId + ".");
+            }
         } catch (IllegalArgumentException ex) {
             redirectAttributes.addFlashAttribute("error", ex.getMessage());
             return "redirect:/legal/verify";
         }
-        model.addAttribute("verification", response);
-        return "legal/verification-result";
+
+        return "redirect:/legal/verify";
     }
 
     @GetMapping("/access")
-    public String showAccessRequestPage(Model model) {
+    public String showAccessRequestPage(@RequestParam(required = false) String evidenceId,
+                                        @RequestParam(required = false) String caseNumber,
+                                        Model model) {
         if (!model.containsAttribute("accessRequestForm")) {
-            model.addAttribute("accessRequestForm", new AccessRequestForm());
+            AccessRequestForm form = new AccessRequestForm();
+            if (evidenceId != null && !evidenceId.isBlank()) {
+                form.setEvidenceId(evidenceId.trim());
+            }
+            if (caseNumber != null && !caseNumber.isBlank()) {
+                form.setCaseNumber(caseNumber.trim());
+            }
+            model.addAttribute("accessRequestForm", form);
         }
         model.addAttribute("evidenceOptions", new ArrayList<>(verificationService.getAvailableEvidenceIds().keySet()));
         return "legal/request-access";

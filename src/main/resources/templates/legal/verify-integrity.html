@@ -36,6 +36,28 @@
                     </table>
                 </div>
 
+                <section class="card" th:if="${lastVerification != null}" style="margin-top: 1rem;">
+                    <h3 th:text="${lastVerification.integrityVerified} ? 'Integrity Verified' : 'Tampering Detected'">Verification Result</h3>
+                    <p th:text="${lastVerification.statusMessage}">Result message</p>
+                    <div class="stack-list">
+                        <p><strong>Evidence ID:</strong> <span class="mono" th:text="${lastVerification.evidenceId}">EVD-0000</span></p>
+                        <p><strong>Case Number:</strong> <span th:text="${lastVerification.caseNumber} ?: 'N/A'">CASE-0000</span></p>
+                        <p><strong>Stored Hash:</strong> <span class="mono" th:text="${lastVerification.storedHash} ?: 'N/A'">N/A</span></p>
+                        <p><strong>Computed Hash:</strong> <span class="mono" th:text="${lastVerification.computedHash} ?: 'N/A'">N/A</span></p>
+                    </div>
+                    <p>
+                        <span class="badge"
+                              th:classappend="${lastVerification.integrityVerified} ? ' badge-verified' : ' badge-denied'"
+                              th:text="${lastVerification.integrityVerified} ? 'VERIFIED' : 'MISMATCH'">MISMATCH</span>
+                    </p>
+                    <div class="button-row">
+                        <a class="btn btn-secondary"
+                           th:href="@{/legal/access(evidenceId=${lastVerification.evidenceId}, caseNumber=${lastVerification.caseNumber})}">
+                            Request Access
+                        </a>
+                    </div>
+                </section>
+
                 <div class="empty-state" th:if="${#lists.isEmpty(evidenceOptions)}">
                     <h3>No evidence available</h3>
                     <p>Evidence options will appear after investigator uploads records.</p>

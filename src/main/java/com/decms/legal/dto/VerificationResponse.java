@@ -3,6 +3,7 @@ package com.decms.legal.dto;
 public class VerificationResponse {
 
     private String evidenceId;
+    private String caseNumber;
     private String storedHash;
     private String computedHash;
     private boolean integrityVerified;
@@ -14,6 +15,14 @@ public class VerificationResponse {
 
     public void setEvidenceId(String evidenceId) {
         this.evidenceId = evidenceId;
+    }
+
+    public String getCaseNumber() {
+        return caseNumber;
+    }
+
+    public void setCaseNumber(String caseNumber) {
+        this.caseNumber = caseNumber;
     }
 
     public String getStoredHash() {

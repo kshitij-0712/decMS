@@ -56,6 +56,7 @@ public class VerificationService {
 
         VerificationResponse response = new VerificationResponse();
         response.setEvidenceId(evidenceId);
+        response.setCaseNumber(evidence.getCaseId());
         response.setStoredHash(storedHash);
         response.setComputedHash(computedHash);
         response.setIntegrityVerified(isMatch);

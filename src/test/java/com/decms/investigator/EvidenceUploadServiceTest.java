@@ -20,6 +20,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Optional;
 
@@ -86,7 +87,7 @@ class EvidenceUploadServiceTest {
 
         when(userRepository.findById("inv-001")).thenReturn(Optional.of(user));
         when(fileStorageService.store(any(), any())).thenReturn("uploads/CASE-01/file.pdf");
-        when(hashService.generateHash(any())).thenReturn("abc123");
+        when(hashService.generateHash(any(MultipartFile.class))).thenReturn("abc123");
         when(hashRecordRepository.existsByHashValue("abc123")).thenReturn(false);
         when(evidenceRepository.save(any(Evidence.class))).thenAnswer(invocation -> {
             Evidence e = invocation.getArgument(0);
