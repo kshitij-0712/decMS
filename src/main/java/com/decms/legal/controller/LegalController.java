@@ -5,12 +5,15 @@ import java.util.List;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 import com.decms.legal.dto.AccessRequestForm;
 import com.decms.legal.dto.VerificationResponse;
@@ -21,8 +24,6 @@ import com.decms.legal.service.AccessRequestService.AccessRequestRecord;
 @Controller
 @RequestMapping("/legal")
 public class LegalController {
-
-    private static final String DEMO_LEGAL_USER = "LEGAL-USER-001";
 
     private final VerificationService verificationService;
     private final AccessRequestService accessRequestService;
@@ -39,8 +40,27 @@ public class LegalController {
     }
 
     @PostMapping("/verify/{evidenceId}")
-    public String verifyEvidence(@PathVariable String evidenceId, Model model) {
-        VerificationResponse response = verificationService.verifyEvidenceIntegrity(evidenceId);
+    public String verifyEvidence(@PathVariable String evidenceId,
+                                 Authentication authentication,
+                                 HttpServletRequest request,
+                                 Model model,
+                                 RedirectAttributes redirectAttributes) {
+        if (authentication == null || authentication.getName() == null) {
+            redirectAttributes.addFlashAttribute("error", "Unable to identify legal user.");
+            return "redirect:/legal/verify";
+        }
+
+        VerificationResponse response;
+        try {
+            response = verificationService.verifyEvidenceIntegrity(
+                    evidenceId,
+                    authentication.getName(),
+                    request.getRemoteAddr()
+            );
+        } catch (IllegalArgumentException ex) {
+            redirectAttributes.addFlashAttribute("error", ex.getMessage());
+            return "redirect:/legal/verify";
+        }
         model.addAttribute("verification", response);
         return "legal/verification-result";
     }
@@ -57,9 +77,15 @@ public class LegalController {
     @PostMapping("/access")
     public String submitAccessRequest(
             @ModelAttribute AccessRequestForm accessRequestForm,
+            Authentication authentication,
             RedirectAttributes redirectAttributes) {
+        if (authentication == null || authentication.getName() == null) {
+            redirectAttributes.addFlashAttribute("error", "Unable to identify legal user.");
+            return "redirect:/legal/access";
+        }
+
         try {
-            AccessRequestRecord record = accessRequestService.submitRequest(accessRequestForm, DEMO_LEGAL_USER);
+            AccessRequestRecord record = accessRequestService.submitRequest(accessRequestForm, authentication.getName());
             redirectAttributes.addFlashAttribute("success", "Access request submitted: " + record.requestId());
         } catch (IllegalArgumentException ex) {
             redirectAttributes.addFlashAttribute("error", ex.getMessage());
@@ -70,8 +96,14 @@ public class LegalController {
     }
 
     @GetMapping("/access/status")
-    public String showAccessRequestStatus(Model model) {
-        List<AccessRequestRecord> requests = accessRequestService.getRequestsByRequester(DEMO_LEGAL_USER);
+    public String showAccessRequestStatus(Authentication authentication, Model model) {
+        if (authentication == null || authentication.getName() == null) {
+            model.addAttribute("requests", List.of());
+            model.addAttribute("error", "Unable to identify legal user.");
+            return "legal/request-status";
+        }
+
+        List<AccessRequestRecord> requests = accessRequestService.getRequestsByRequester(authentication.getName());
         model.addAttribute("requests", requests);
         return "legal/request-status";
     }

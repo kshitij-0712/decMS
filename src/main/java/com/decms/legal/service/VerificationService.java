@@ -1,47 +1,75 @@
 package com.decms.legal.service;
 
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.HashMap;
+import java.nio.file.Path;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.decms.common.observer.EvidenceEventPublisher;
+import com.decms.common.service.HashService;
+import com.decms.forensic.service.CustodyLogService;
 import com.decms.legal.dto.VerificationResponse;
+import com.decms.model.ActionType;
+import com.decms.model.Evidence;
+import com.decms.model.HashRecord;
+import com.decms.model.Role;
+import com.decms.repository.EvidenceRepository;
+import com.decms.repository.HashRecordRepository;
 
 @Service
 public class VerificationService {
 
     private final EvidenceEventPublisher eventPublisher;
-    private final Map<String, String> storedHashes = new HashMap<>();
+    private final EvidenceRepository evidenceRepository;
+    private final HashRecordRepository hashRecordRepository;
+    private final HashService hashService;
+    private final CustodyLogService custodyLogService;
 
-    public VerificationService(EvidenceEventPublisher eventPublisher) {
+    public VerificationService(EvidenceEventPublisher eventPublisher,
+                               EvidenceRepository evidenceRepository,
+                               HashRecordRepository hashRecordRepository,
+                               HashService hashService,
+                               CustodyLogService custodyLogService) {
         this.eventPublisher = eventPublisher;
-        seedSampleHashes();
+        this.evidenceRepository = evidenceRepository;
+        this.hashRecordRepository = hashRecordRepository;
+        this.hashService = hashService;
+        this.custodyLogService = custodyLogService;
     }
 
-    public VerificationResponse verifyEvidenceIntegrity(String evidenceId) {
-        String storedHash = storedHashes.get(evidenceId);
-        VerificationResponse response = new VerificationResponse();
-        response.setEvidenceId(evidenceId);
+    @Transactional
+    public VerificationResponse verifyEvidenceIntegrity(String evidenceId,
+                                                       String actorUserId,
+                                                       String ipAddress) {
+        Evidence evidence = evidenceRepository.findById(evidenceId)
+                .orElseThrow(() -> new IllegalArgumentException("Evidence not found: " + evidenceId));
 
-        if (storedHash == null) {
-            response.setIntegrityVerified(false);
-            response.setStatusMessage("No stored hash found for the selected evidence.");
-            return response;
-        }
+        HashRecord hashRecord = hashRecordRepository.findByEvidenceEvidenceId(evidenceId)
+                .orElseThrow(() -> new IllegalArgumentException("Stored hash not found for evidence: " + evidenceId));
 
-        String computedHash = computeDeterministicHash(evidenceId);
+        String storedHash = hashRecord.getHashValue();
+        String computedHash = hashService.generateHash(Path.of(evidence.getFilePath()));
         boolean isMatch = storedHash.equals(computedHash);
 
+        VerificationResponse response = new VerificationResponse();
+        response.setEvidenceId(evidenceId);
         response.setStoredHash(storedHash);
         response.setComputedHash(computedHash);
         response.setIntegrityVerified(isMatch);
         response.setStatusMessage(isMatch
                 ? "Integrity verified. Stored and computed hashes match."
                 : "Tampering detected. Stored and computed hashes do not match.");
+
+        custodyLogService.createEntry(
+                evidenceId,
+                actorUserId,
+                Role.LEGAL_OFFICER,
+                ActionType.VERIFY,
+                ipAddress
+        );
 
         if (!isMatch) {
             eventPublisher.publish(
@@ -53,31 +81,13 @@ public class VerificationService {
         return response;
     }
 
+    @Transactional(readOnly = true)
     public Map<String, String> getAvailableEvidenceIds() {
-        return Map.copyOf(storedHashes);
-    }
-
-    private String computeDeterministicHash(String evidenceId) {
-        try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            byte[] output = digest.digest((evidenceId + "::evidence-content").getBytes(StandardCharsets.UTF_8));
-            return bytesToHex(output);
-        } catch (NoSuchAlgorithmException ex) {
-            throw new IllegalStateException("SHA-256 algorithm not available", ex);
+        List<Evidence> evidenceList = evidenceRepository.findAllByOrderByUploadTimestampDesc();
+        Map<String, String> result = new LinkedHashMap<>();
+        for (Evidence evidence : evidenceList) {
+            result.put(evidence.getEvidenceId(), evidence.getCaseId());
         }
-    }
-
-    private String bytesToHex(byte[] bytes) {
-        StringBuilder builder = new StringBuilder(bytes.length * 2);
-        for (byte singleByte : bytes) {
-            builder.append(String.format("%02x", singleByte));
-        }
-        return builder.toString();
-    }
-
-    private void seedSampleHashes() {
-        storedHashes.put("EVD-1001", computeDeterministicHash("EVD-1001"));
-        storedHashes.put("EVD-1002", computeDeterministicHash("EVD-1002") + "ff");
-        storedHashes.put("EVD-1003", computeDeterministicHash("EVD-1003"));
+        return result;
     }
 }
