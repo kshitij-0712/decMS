@@ -3,24 +3,67 @@
 <head th:replace="~{layout/fragments :: appHead('User Management')}"></head>
 <body>
 <div th:replace="~{layout/fragments :: appBackdrop}"></div>
-
 <div class="app-shell">
     <aside th:replace="~{layout/fragments :: sideNav('adm-users')}"></aside>
     <main class="app-main">
-        <header th:replace="~{layout/fragments :: topBar('User Management', 'Admin UC-07 shell')}"></header>
+        <header th:replace="~{layout/fragments :: topBar('User Management', 'UC-07 — Create, edit, deactivate users')}"></header>
         <section class="app-content">
+
+            <div th:if="${successMessage}" class="badge badge-approved" style="display:block;padding:10px;margin-bottom:16px;" th:text="${successMessage}"></div>
+            <div th:if="${errorMessage}" class="badge badge-danger" style="display:block;padding:10px;margin-bottom:16px;" th:text="${errorMessage}"></div>
+
+            <div th:if="${activeAdminCount <= 1}"
+                 style="background:#fff3cd;border:1px solid #ffc107;padding:10px 14px;border-radius:6px;margin-bottom:16px;">
+                &#9888; Only <strong>1 active Administrator</strong> remains. Add another before deactivating.
+            </div>
+
             <article class="card">
-                <h2>Users and roles</h2>
-                <div class="button-row"><a class="btn btn-primary" th:href="@{/admin/users/new}">Create User</a></div>
+                <div class="button-row" style="margin-bottom:14px;">
+                    <h2 style="margin:0;">Users &amp; Roles</h2>
+                    <a th:href="@{/admin/users/new}" class="btn btn-primary">+ Create User</a>
+                </div>
+
                 <table class="table">
-                    <thead><tr><th>User</th><th>Role</th><th>Status</th></tr></thead>
-                    <tbody><tr><td>inv-001</td><td>INVESTIGATOR</td><td><span class="badge badge-approved">ACTIVE</span></td></tr></tbody>
+                    <thead>
+                        <tr><th>Name</th><th>Email</th><th>Department</th><th>Role</th><th>Status</th><th>Actions</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="user : ${users}">
+                            <td th:text="${user.name}"></td>
+                            <td th:text="${user.email}"></td>
+                            <td th:text="${user.department ?: '—'}"></td>
+                            <td><span class="badge badge-pending" th:text="${user.role}"></span></td>
+                            <td>
+                                <span th:text="${user.status}"
+                                      th:class="${user.status.name() == 'ACTIVE'} ? 'badge badge-approved' : 'badge badge-danger'">
+                                </span>
+                            </td>
+                            <td class="button-row">
+                                <a th:href="@{/admin/users/{id}/edit(id=${user.userId})}"
+                                   class="btn btn-primary" style="font-size:12px;padding:4px 10px;">Edit</a>
+
+                                <form th:if="${user.status.name() == 'ACTIVE'}"
+                                      th:action="@{/admin/users/{id}/deactivate(id=${user.userId})}"
+                                      method="post" style="display:inline;"
+                                      onsubmit="return confirm('Deactivate this user?')">
+                                    <button type="submit" class="btn btn-danger"
+                                            style="font-size:12px;padding:4px 10px;">Deactivate</button>
+                                </form>
+
+                                <form th:if="${user.status.name() == 'INACTIVE'}"
+                                      th:action="@{/admin/users/{id}/reactivate(id=${user.userId})}"
+                                      method="post" style="display:inline;">
+                                    <button type="submit" class="btn btn-primary"
+                                            style="font-size:12px;padding:4px 10px;">Reactivate</button>
+                                </form>
+                            </td>
+                        </tr>
+                    </tbody>
                 </table>
             </article>
         </section>
     </main>
 </div>
-
 <script th:src="@{/js/app.js}"></script>
 </body>
 </html>

@@ -3,34 +3,84 @@
 <head th:replace="~{layout/fragments :: appHead('Access Requests')}"></head>
 <body>
 <div th:replace="~{layout/fragments :: appBackdrop}"></div>
-
 <div class="app-shell">
     <aside th:replace="~{layout/fragments :: sideNav('adm-users')}"></aside>
     <main class="app-main">
-        <header th:replace="~{layout/fragments :: topBar('Access Request Queue', 'Admin approval shell for UC-05')}"></header>
+        <header th:replace="~{layout/fragments :: topBar('Access Request Queue', 'UC-08 — Approve or deny evidence access')}"></header>
         <section class="app-content">
+
+            <div th:if="${successMessage}" class="badge badge-approved" style="display:block;padding:10px;margin-bottom:16px;" th:text="${successMessage}"></div>
+            <div th:if="${errorMessage}" class="badge badge-danger" style="display:block;padding:10px;margin-bottom:16px;" th:text="${errorMessage}"></div>
+
+            <!-- Pending requests -->
             <article class="card">
-                <h2>Pending approvals</h2>
-                <table class="table">
-                    <thead><tr><th>Request</th><th>Evidence</th><th>Requester</th><th>Status</th><th>Action</th></tr></thead>
+                <h2>
+                    Pending Requests
+                    <span th:if="${pendingCount > 0}" class="badge badge-pending"
+                          th:text="${pendingCount} + ' pending'" style="margin-left:8px;"></span>
+                </h2>
+                <p th:if="${#lists.isEmpty(pendingRequests)}" style="color:#888;margin-top:8px;">
+                    &#10003; No pending access requests.
+                </p>
+                <table th:unless="${#lists.isEmpty(pendingRequests)}" class="table">
+                    <thead>
+                        <tr><th>Evidence ID</th><th>Case No.</th><th>Requested By</th>
+                            <th>Reason</th><th>Requested At</th><th>Actions</th></tr>
+                    </thead>
                     <tbody>
-                    <tr>
-                        <td class="mono">REQ-2026-01</td>
-                        <td>E-001</td>
-                        <td>legal-001</td>
-                        <td><span class="badge badge-pending">PENDING</span></td>
-                        <td class="button-row">
-                            <button class="btn btn-primary" type="button">Approve</button>
-                            <button class="btn btn-danger" type="button">Deny</button>
-                        </td>
-                    </tr>
+                        <tr th:each="req : ${pendingRequests}">
+                            <td class="mono" th:text="${#strings.abbreviate(req.evidence.evidenceId, 14)}"></td>
+                            <td th:text="${req.caseNumber ?: '—'}"></td>
+                            <td th:text="${req.requester.name}"></td>
+                            <td th:text="${req.reason}"></td>
+                            <td th:text="${#temporals.format(req.requestedAt, 'dd-MM-yyyy HH:mm')}"></td>
+                            <td class="button-row">
+                                <form th:action="@{/admin/access-requests/{id}/approve(id=${req.requestId})}"
+                                      method="post" style="display:inline;"
+                                      onsubmit="return confirm('Approve this request?')">
+                                    <button type="submit" class="btn btn-primary"
+                                            style="font-size:12px;padding:4px 10px;">&#10003; Approve</button>
+                                </form>
+                                <form th:action="@{/admin/access-requests/{id}/deny(id=${req.requestId})}"
+                                      method="post" style="display:inline;"
+                                      onsubmit="return confirm('Deny this request?')">
+                                    <button type="submit" class="btn btn-danger"
+                                            style="font-size:12px;padding:4px 10px;">&#10007; Deny</button>
+                                </form>
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
             </article>
+
+            <!-- Resolved requests -->
+            <article class="card" style="margin-top:20px;">
+                <h2>Resolved Requests</h2>
+                <p th:if="${#lists.isEmpty(resolvedRequests)}" style="color:#888;margin-top:8px;">No resolved requests yet.</p>
+                <table th:unless="${#lists.isEmpty(resolvedRequests)}" class="table">
+                    <thead>
+                        <tr><th>Evidence ID</th><th>Requested By</th><th>Status</th>
+                            <th>Resolved By</th><th>Resolved At</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="req : ${resolvedRequests}">
+                            <td class="mono" th:text="${#strings.abbreviate(req.evidence.evidenceId, 14)}"></td>
+                            <td th:text="${req.requester.name}"></td>
+                            <td>
+                                <span th:text="${req.status}"
+                                      th:class="${req.status.name() == 'APPROVED'} ? 'badge badge-approved' : 'badge badge-danger'">
+                                </span>
+                            </td>
+                            <td th:text="${req.resolvedBy != null} ? ${req.resolvedBy.name} : '—'"></td>
+                            <td th:text="${req.resolvedAt != null} ? ${#temporals.format(req.resolvedAt,'dd-MM-yyyy HH:mm')} : '—'"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </article>
+
         </section>
     </main>
 </div>
-
 <script th:src="@{/js/app.js}"></script>
 </body>
 </html>

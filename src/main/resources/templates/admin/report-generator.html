@@ -3,24 +3,69 @@
 <head th:replace="~{layout/fragments :: appHead('Report Generator')}"></head>
 <body>
 <div th:replace="~{layout/fragments :: appBackdrop}"></div>
-
 <div class="app-shell">
     <aside th:replace="~{layout/fragments :: sideNav('adm-reports')}"></aside>
     <main class="app-main">
-        <header th:replace="~{layout/fragments :: topBar('Generate Audit Report', 'Admin UC-04 shell')}"></header>
+        <header th:replace="~{layout/fragments :: topBar('Generate Audit Report', 'UC-04 — Compile custody timeline and export')}"></header>
         <section class="app-content">
+
+            <div th:if="${errorMessage}" class="badge badge-danger" style="display:block;padding:10px;margin-bottom:16px;" th:text="${errorMessage}"></div>
+            <div th:if="${successMessage}" class="badge badge-approved" style="display:block;padding:10px;margin-bottom:16px;" th:text="${successMessage}"></div>
+
+            <!-- Report generation form -->
             <article class="card">
-                <h2>Report filters</h2>
-                <form class="form-grid compact-form">
-                    <label><span>Case ID</span><input type="text"></label>
-                    <label><span>Format</span><select><option>HTML</option><option>PDF</option></select></label>
-                    <button class="btn btn-primary" type="button">Generate</button>
+                <h2>Report Filters</h2>
+                <form th:action="@{/admin/reports/generate}" method="post" class="form-grid compact-form">
+                    <label>
+                        <span>Case ID <span style="color:red">*</span></span>
+                        <select name="caseId" required>
+                            <option value="">— Select a Case —</option>
+                            <option th:each="id : ${caseIds}" th:value="${id}" th:text="${id}"></option>
+                        </select>
+                    </label>
+                    <label>
+                        <span>Format</span>
+                        <select name="format">
+                            <option value="HTML">HTML (view in browser)</option>
+                            <option value="PDF">PDF (downloadable)</option>
+                        </select>
+                    </label>
+                    <button class="btn btn-primary" type="submit">Generate Report</button>
                 </form>
+                <p th:if="${#lists.isEmpty(caseIds)}" style="color:#888;margin-top:12px;">
+                    No evidence uploaded yet. Ask an Investigator to upload evidence first.
+                </p>
             </article>
+
+            <!-- Report history -->
+            <article class="card" style="margin-top:20px;">
+                <h2>Report History</h2>
+                <p th:if="${#lists.isEmpty(reportHistory)}" style="color:#888;">No reports generated yet.</p>
+                <table th:unless="${#lists.isEmpty(reportHistory)}" class="table">
+                    <thead>
+                        <tr><th>Report ID</th><th>Case ID</th><th>Format</th><th>Generated At</th><th>Action</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="r : ${reportHistory}">
+                            <td class="mono" th:text="${#strings.abbreviate(r.reportId, 16)}"></td>
+                            <td th:text="${r.caseId}"></td>
+                            <td><span class="badge" th:text="${r.format}"
+                                th:classappend="${r.format == 'PDF'} ? ' badge-danger' : ' badge-pending'"></span></td>
+                            <td th:text="${#temporals.format(r.generatedAt, 'dd-MM-yyyy HH:mm')}"></td>
+                            <td>
+                                <a th:if="${r.format == 'PDF'}"
+                                   th:href="@{/admin/reports/{id}/download(id=${r.reportId})}"
+                                   class="btn btn-primary" style="font-size:12px;padding:4px 10px;">Download PDF</a>
+                                <span th:unless="${r.format == 'PDF'}" style="color:#aaa;font-size:12px;">HTML only</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </article>
+
         </section>
     </main>
 </div>
-
 <script th:src="@{/js/app.js}"></script>
 </body>
 </html>
