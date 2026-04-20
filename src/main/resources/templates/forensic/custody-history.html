@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Custody History - Forensic Module</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        header {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 5px;
+        }
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .summary-stat {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+        }
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .card h2 {
+            color: #333;
+            font-size: 16px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        .timeline {
+            position: relative;
+            padding: 20px 0;
+        }
+        .timeline-item {
+            padding: 15px;
+            margin-bottom: 15px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            border-left: 4px solid #667eea;
+            position: relative;
+            padding-left: 30px;
+        }
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -12px;
+            top: 25px;
+            width: 14px;
+            height: 14px;
+            background: #667eea;
+            border-radius: 50%;
+            border: 3px solid white;
+        }
+        .timeline-item.suspicious {
+            border-left-color: #ff6b6b;
+            background: #ffe0e0;
+        }
+        .timeline-item.suspicious::before {
+            background: #ff6b6b;
+        }
+        .timeline-date {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        .timeline-action {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 3px;
+        }
+        .timeline-actor {
+            color: #999;
+            font-size: 12px;
+        }
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+        .alert-error {
+            background: #fee;
+            color: #c33;
+            border-left: 4px solid #c33;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .pagination a, .pagination span {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-decoration: none;
+            color: #667eea;
+        }
+        .pagination .current {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            padding: 10px 15px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <a href="/forensic/custody" class="back-link">← Back to Dashboard</a>
+            <h1>📊 Custody History Analysis</h1>
+            <p style="color: #666; margin-top: 5px;">Evidence ID: <strong th:text="${evidenceId}"></strong></p>
+
+            <div th:if="${summary}" class="summary-grid">
+                <div class="summary-stat">
+                    <div class="stat-value" th:text="${summary.getTotalAccessCount()}"></div>
+                    <div class="stat-label">Total Accesses</div>
+                </div>
+                <div class="summary-stat">
+                    <div class="stat-value" th:text="${summary.getUniqueActorsCount()}"></div>
+                    <div class="stat-label">Unique Actors</div>
+                </div>
+                <div class="summary-stat">
+                    <div class="stat-value" th:text="${summary.getSuspiciousEntryCount()}"></div>
+                    <div class="stat-label">Suspicious Entries</div>
+                </div>
+                <div class="summary-stat">
+                    <div class="stat-value" style="font-size: 14px;" th:text="${#temporals.format(summary.getLastAccessTime(), 'HH:mm:ss')}"></div>
+                    <div class="stat-label">Last Access</div>
+                </div>
+            </div>
+        </header>
+
+        <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+
+        <div class="card">
+            <h2>Timeline</h2>
+            
+            <div th:if="${history.isEmpty()}" class="empty-state">
+                <p>No custody history found for this evidence.</p>
+            </div>
+
+            <div th:else class="timeline">
+                <div th:each="entry : ${history}" 
+                     th:classappend="${entry.isSuspicious} ? 'suspicious' : ''" 
+                     class="timeline-item">
+                    
+                    <div class="timeline-date" th:text="${#temporals.format(entry.timestampRecorded, 'dd MMM yyyy - HH:mm:ss')}"></div>
+                    <div class="timeline-action">
+                        <strong th:text="${entry.action}"></strong>
+                        <span th:if="${entry.isSuspicious}" style="color: #ff6b6b; margin-left: 10px;">⚠️ ANOMALY</span>
+                    </div>
+                    <div class="timeline-actor" th:text="'By: ' + ${entry.actor.fullName} + ' | IP: ' + ${entry.ipAddress}"></div>
+                    <div class="timeline-actor" th:text="${entry.details}" style="margin-top: 3px;"></div>
+                </div>
+            </div>
+
+            <!-- Pagination -->
+            <div th:if="${totalElements > 0}" class="pagination">
+                <a th:if="${currentPage > 0}" th:href="@{/forensic/history/{id}(id=${evidenceId}, page=${currentPage - 1})}">Previous</a>
+                <span th:text="${currentPage + 1} + ' / ' + ${totalPages}"></span>
+                <a th:if="${currentPage + 1 < totalPages}" th:href="@{/forensic/history/{id}(id=${evidenceId}, page=${currentPage + 1})}">Next</a>
+            </div>
+        </div>
+
+        <footer style="text-align: center; color: white; padding: 20px;">
+            <p>Digital Evidence & Chain-of-Custody Management System - Forensic Module</p>
+        </footer>
+    </div>
+</body>
+</html>

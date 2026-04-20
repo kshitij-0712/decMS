@@ -1,0 +1,47 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Maven
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+*.iml
+
+# Spring Boot
+*.jar
+*.war
+spring-boot-logs/
+
+# Database
+*.db
+*.sql.log
+decms.log
+
+# Evidence Files
+evidence-files/
+uploads/
+
+# Environment
+.env
+.env.local
+*.properties.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
