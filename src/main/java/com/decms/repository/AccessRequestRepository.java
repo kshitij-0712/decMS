@@ -17,6 +17,9 @@ public interface AccessRequestRepository extends JpaRepository<AccessRequest, St
     // Used by LegalController — requests by a specific requester
     List<AccessRequest> findByRequesterUserId(String requesterId);
 
+    // Used by AccessRequestService — requester history sorted newest first
+    List<AccessRequest> findByRequester_UserIdOrderByRequestedAtDesc(String requesterId);
+
     // Used by LegalController — requests for a specific evidence item
     List<AccessRequest> findByEvidenceEvidenceId(String evidenceId);
 }
