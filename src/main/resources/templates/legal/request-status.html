@@ -7,15 +7,47 @@
 <div class="app-shell">
     <aside th:replace="~{layout/fragments :: sideNav('leg-access')}"></aside>
     <main class="app-main">
-        <header th:replace="~{layout/fragments :: topBar('Access Request Status', 'Legal tracking shell')}"></header>
+        <header th:replace="~{layout/fragments :: topBar('Access Request Status', 'Track legal access requests')}"></header>
         <section class="app-content">
+            <div th:replace="~{layout/fragments :: alerts}"></div>
+
             <article class="card">
                 <h2>Submitted requests</h2>
-                <p th:text="${statusHint}">Integration hint.</p>
-                <table class="table">
-                    <thead><tr><th>Request ID</th><th>Evidence</th><th>Status</th></tr></thead>
-                    <tbody><tr><td class="mono">REQ-001</td><td>E-001</td><td><span class="badge badge-pending">PENDING</span></td></tr></tbody>
-                </table>
+
+                <div class="table-wrap" th:if="${!#lists.isEmpty(requests)}">
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th>Request ID</th>
+                            <th>Evidence ID</th>
+                            <th>Case Number</th>
+                            <th>Reason</th>
+                            <th>Status</th>
+                            <th>Requested At</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="request : ${requests}">
+                            <td class="mono" th:text="${request.requestId}">REQ-1</td>
+                            <td th:text="${request.evidenceId}">EVD-1</td>
+                            <td th:text="${request.caseNumber}">CASE-1</td>
+                            <td th:text="${request.reason}">Reason</td>
+                            <td>
+                                <span class="badge"
+                                      th:classappend="|badge-${#strings.toLowerCase(request.status)}|"
+                                      th:text="${request.status}">PENDING</span>
+                            </td>
+                            <td th:text="${#temporals.format(request.requestedAt, 'yyyy-MM-dd HH:mm')}">2026-01-01 00:00</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="empty-state" th:if="${#lists.isEmpty(requests)}">
+                    <h3>No requests submitted yet</h3>
+                    <p>Create a new legal access request to start tracking status.</p>
+                    <a th:href="@{/legal/access}" class="btn btn-primary">Create Request</a>
+                </div>
             </article>
         </section>
     </main>

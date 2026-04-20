@@ -7,15 +7,35 @@
 <div class="app-shell">
     <aside th:replace="~{layout/fragments :: sideNav('leg-access')}"></aside>
     <main class="app-main">
-        <header th:replace="~{layout/fragments :: topBar('Request Evidence Access', 'Legal UC-05 shell')}"></header>
+        <header th:replace="~{layout/fragments :: topBar('Request Evidence Access', 'UC-05 legal request workflow')}"></header>
         <section class="app-content">
+            <div th:replace="~{layout/fragments :: alerts}"></div>
+
             <article class="card">
                 <h2>Access request form</h2>
-                <form class="form-grid">
-                    <label><span>Evidence ID</span><input type="text"></label>
-                    <label><span>Case Number</span><input type="text"></label>
-                    <label class="field-full"><span>Reason</span><textarea rows="4"></textarea></label>
-                    <button class="btn btn-primary" type="button">Submit Request</button>
+                <form th:action="@{/legal/access}" method="post" th:object="${accessRequestForm}" class="form-grid">
+                    <label>
+                        <span>Evidence ID</span>
+                        <select th:field="*{evidenceId}" required>
+                            <option value="">Select evidence</option>
+                            <option th:each="evidenceId : ${evidenceOptions}" th:value="${evidenceId}" th:text="${evidenceId}">EVD-0000</option>
+                        </select>
+                    </label>
+
+                    <label>
+                        <span>Case Number</span>
+                        <input type="text" th:field="*{caseNumber}" maxlength="50" placeholder="CASE-2026-015" required>
+                    </label>
+
+                    <label class="field-full">
+                        <span>Reason / Purpose</span>
+                        <textarea th:field="*{reason}" rows="4" maxlength="500" placeholder="Provide legal basis for access" required></textarea>
+                    </label>
+
+                    <div class="button-row">
+                        <button class="btn btn-primary" type="submit">Submit Request</button>
+                        <a class="btn btn-secondary" th:href="@{/legal/access/status}">View Request Status</a>
+                    </div>
                 </form>
             </article>
         </section>

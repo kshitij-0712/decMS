@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{layout/fragments :: appHead('Audit Report')}"></head>
@@ -116,3 +117,27 @@
 <script th:src="@{/js/app.js}"></script>
 </body>
 </html>
+=======
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/fragments :: appHead('Report View')}"></head>
+<body>
+<div th:replace="~{layout/fragments :: appBackdrop}"></div>
+
+<div class="app-shell">
+    <aside th:replace="~{layout/fragments :: sideNav('adm-reports')}"></aside>
+    <main class="app-main">
+        <header th:replace="~{layout/fragments :: topBar('Audit Report', 'Timeline and custody export shell')}"></header>
+        <section class="app-content">
+            <article class="card">
+                <h2>Case timeline report</h2>
+                <p>Report formatter output can be injected here as HTML or exported as PDF in integration phase.</p>
+            </article>
+        </section>
+    </main>
+</div>
+
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>
+>>>>>>> legal
