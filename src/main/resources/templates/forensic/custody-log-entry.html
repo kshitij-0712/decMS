@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/fragments :: appHead('Custody Log Entry')}"></head>
+<body>
+<div th:replace="~{layout/fragments :: appBackdrop}"></div>
+
+<div class="app-shell">
+    <aside th:replace="~{layout/fragments :: sideNav('for-custody')}"></aside>
+    <main class="app-main">
+        <header th:replace="~{layout/fragments :: topBar('Evidence Custody Log', 'UC-02 evidence-specific chain entries')}"></header>
+        <section class="app-content">
+            <div th:replace="~{layout/fragments :: alerts}"></div>
+
+            <article class="card">
+                <h2 th:text="'Evidence ' + ${evidenceId}">Evidence E-001</h2>
+                <div class="button-row" style="margin-bottom: 0.8rem;">
+                    <a class="btn btn-secondary" th:href="@{/forensic/custody}">Back to dashboard</a>
+                </div>
+
+                <div class="table-wrap" th:if="${!#lists.isEmpty(custodyLogs)}">
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th>Timestamp</th>
+                            <th>Action</th>
+                            <th>Actor</th>
+                            <th>Role</th>
+                            <th>IP Address</th>
+                            <th>Suspicious</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="log : ${custodyLogs}">
+                            <td th:text="${#temporals.format(log.timestamp, 'yyyy-MM-dd HH:mm:ss')}">time</td>
+                            <td th:text="${log.actionType}">VIEW</td>
+                            <td th:text="${log.actor != null ? log.actor.name : '—'}">actor</td>
+                            <td th:text="${log.actorRole}">role</td>
+                            <td class="mono" th:text="${log.ipAddress != null ? log.ipAddress : '—'}">ip</td>
+                            <td>
+                                <span class="badge"
+                                      th:classappend="${log.suspicious} ? ' badge-denied' : ' badge-approved'"
+                                      th:text="${log.suspicious} ? 'YES' : 'NO'">NO</span>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="empty-state" th:if="${#lists.isEmpty(custodyLogs)}">
+                    <h3>No custody records found</h3>
+                    <p>This evidence has no custody entries yet.</p>
+                </div>
+            </article>
+        </section>
+    </main>
+</div>
+
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

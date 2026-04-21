@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/fragments :: appHead('Custody History')}"></head>
+<body>
+<div th:replace="~{layout/fragments :: appBackdrop}"></div>
+
+<div class="app-shell">
+    <aside th:replace="~{layout/fragments :: sideNav('for-history')}"></aside>
+    <main class="app-main">
+        <header th:replace="~{layout/fragments :: topBar('Custody History', 'UC-08 chronological evidence timeline')}"></header>
+        <section class="app-content">
+            <div th:replace="~{layout/fragments :: alerts}"></div>
+
+            <article class="card">
+                <h2>Open evidence history</h2>
+                <form class="form-grid compact-form" method="get" th:action="@{/forensic/history}">
+                    <label>
+                        <span>Select Evidence</span>
+                        <select name="evidenceId" required>
+                            <option value="">-- Choose Evidence --</option>
+                            <option th:each="evidence : ${allEvidence}" 
+                                    th:value="${evidence.evidenceId}" 
+                                    th:text="${evidence.evidenceId + ' (' + evidence.status + ')'}"
+                                    th:selected="${evidence.evidenceId == evidenceId}">
+                            </option>
+                        </select>
+                    </label>
+                    <button class="btn btn-primary" type="submit">Load History</button>
+                </form>
+            </article>
+
+            <article class="card" th:if="${evidenceId != null and !#strings.isEmpty(evidenceId)}">
+                <h2 th:text="'Timeline for ' + ${evidenceId}">Timeline</h2>
+
+                <ul class="timeline" th:if="${!#lists.isEmpty(history)}">
+                    <li th:each="entry : ${history}">
+                        <span class="timeline-dot"></span>
+                        <div>
+                            <strong th:text="${entry.actionType}">UPLOAD</strong>
+                            <p>
+                                <span th:text="${entry.actor != null ? entry.actor.name : '—'}">actor</span>
+                                (<span th:text="${entry.actorRole}">role</span>)
+                                <span th:if="${entry.suspicious}" class="badge badge-denied" style="margin-left: 0.4rem;">SUSPICIOUS</span>
+                            </p>
+                            <small>
+                                <span th:text="${#temporals.format(entry.timestamp, 'yyyy-MM-dd HH:mm:ss')}">time</span>
+                                from <span class="mono" th:text="${entry.ipAddress != null ? entry.ipAddress : '—'}">ip</span>
+                            </small>
+                        </div>
+                    </li>
+                </ul>
+
+                <div class="empty-state" th:if="${#lists.isEmpty(history)}">
+                    <h3>No timeline entries</h3>
+                    <p>No custody history found for this evidence.</p>
+                </div>
+            </article>
+        </section>
+    </main>
+</div>
+
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

@@ -1,0 +1,39 @@
+target/
+
+# Maven metadata
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.swp
+*.swo
+*~
+
+# Runtime folders
+uploads/
+data/
+evidence-files/
+
+# Build artifacts
+*.jar
+*.war
+
+# Logs
+*.log
+decms.log
+spring-boot-logs/
+
+# Environment overrides
+.env
+.env.local
+*.properties.local
+
+# OS files
+.DS_Store
+Thumbs.db

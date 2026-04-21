@@ -18,23 +18,23 @@ Build a single integrated system that supports end-to-end digital evidence lifec
 ## Use Cases
 
 ### Major
-- UC-01 Upload and Seal Digital Evidence
-- UC-02 Maintain Chain-of-Custody Log
-- UC-03 Verify Evidence Integrity
-- UC-04 Generate Audit Report
+- **UC-01** Upload and Seal Digital Evidence
+- **UC-02** Maintain Chain-of-Custody Log
+- **UC-03** Verify Evidence Integrity
+- **UC-04** Generate Audit Report
 
 ### Minor
-- UC-05 Request Evidence Access
-- UC-06 View Evidence Details
-- UC-07 Manage Users and Roles
-- UC-08 View Custody History
+- **UC-05** Request Evidence Access
+- **UC-06** View Evidence Details
+- **UC-07** Manage Users and Roles
+- **UC-08** View Custody History
 
 ## Architecture and Stack
 
 - Architecture: Spring MVC (`Controller -> Service -> Repository -> DB`)
 - Backend: Spring Boot 3.x, Spring MVC, Spring Data JPA, Spring Security
 - View: Thymeleaf
-- Database: MySQL 8 / PostgreSQL
+- Database: MySQL 8 / PostgreSQL / H2 (Development)
 - Build: Maven
 - Hashing: SHA-256 (`MessageDigest`)
 - Report export: iText or Apache PDFBox
@@ -53,45 +53,27 @@ Build a single integrated system that supports end-to-end digital evidence lifec
 - LSP: role-specific user types are substitutable for `User`
 - DIP: services depend on interfaces (for example, `ReportFormatter`)
 
-## Branching Model
+## Default Credentials (Development)
 
-- `main`: integrated project state
-- `inves`: investigator module work
-- `foren`: forensic module work
-- `legal`: legal module work
-- `admin`: admin module work
+Default users are automatically seeded for testing:
 
-## Planned Project Structure
+| Role | Username | Password |
+|------|----------|----------|
+| Investigator | `inv-001` | `password` |
+| Forensic Analyst | `foren-001` | `password` |
+| Legal Officer | `legal-001` | `password` |
+| Administrator | `admin-001` | `password` |
 
-```
-src/main/java/com/decms/
-  config/
-  model/
-  repository/
-  common/
-    factory/
-    decorator/
-    observer/
-    service/
-  investigator/
-  forensic/
-  legal/
-  admin/
+## Local Setup & Quick Start
 
-src/main/resources/
-  templates/
-  static/
-  db/
-```
-
-## Local Setup (when implementation starts)
-
-1. Install Java 17+ and Maven.
-2. Create a MySQL/PostgreSQL database.
-3. Configure `src/main/resources/application.properties`.
-4. Run schema from `src/main/resources/db/schema.sql`.
-5. Start app with `mvn spring-boot:run`.
+1. Install Java 17+ and Maven 3.9+.
+2. Ensure you are in the root directory.
+3. Start the application with:
+   ```bash
+   mvn clean spring-boot:run
+   ```
+4. Access the application at `http://localhost:8080`.
 
 ## Status
 
-Planning complete. Module-wise implementation begins in role branches and will be merged into `main` after integration testing.
+**Implementation Complete.** Module-wise implementation has been merged into `main` after integration testing. The project is fully functional across all four core roles.

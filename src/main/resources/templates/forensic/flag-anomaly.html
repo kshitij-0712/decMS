@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/fragments :: appHead('Flagged Anomalies')}"></head>
+<body>
+<div th:replace="~{layout/fragments :: appBackdrop}"></div>
+
+<div class="app-shell">
+    <aside th:replace="~{layout/fragments :: sideNav('for-history')}"></aside>
+    <main class="app-main">
+        <header th:replace="~{layout/fragments :: topBar('Suspicious Custody Entries', 'UC-02 anomaly monitoring feed')}" ></header>
+        <section class="app-content">
+            <div th:replace="~{layout/fragments :: alerts}"></div>
+
+            <article class="card">
+                <h2>Flagged records</h2>
+
+                <div class="table-wrap" th:if="${!#lists.isEmpty(anomalies)}">
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th>Evidence</th>
+                            <th>Action</th>
+                            <th>Actor</th>
+                            <th>Role</th>
+                            <th>IP Address</th>
+                            <th>Timestamp</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="a : ${anomalies}">
+                            <td class="mono" th:text="${a.evidence.evidenceId}">E-001</td>
+                            <td><span class="badge badge-denied" th:text="${a.actionType}">ACCESS</span></td>
+                            <td th:text="${a.actor != null ? a.actor.name : '—'}">actor</td>
+                            <td th:text="${a.actorRole}">role</td>
+                            <td class="mono" th:text="${a.ipAddress != null ? a.ipAddress : '—'}">ip</td>
+                            <td th:text="${#temporals.format(a.timestamp, 'yyyy-MM-dd HH:mm:ss')}">time</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="empty-state" th:if="${#lists.isEmpty(anomalies)}">
+                    <h3>No anomalies flagged</h3>
+                    <p>Suspicious custody entries will appear here once flagged in logs.</p>
+                </div>
+
+                <div class="button-row" style="margin-top: 0.8rem;">
+                    <a class="btn btn-secondary" th:href="@{/forensic/custody}">Back to custody dashboard</a>
+                </div>
+            </article>
+        </section>
+    </main>
+</div>
+
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>
