@@ -1,76 +1,126 @@
 package com.decms.model;
 
-import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import java.time.LocalDateTime;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.Table;
 
-/**
- * CustodyLog entity for tracking chain of custody.
- * Every evidence action is recorded with actor, action, timestamp, and IP.
- *
- * Core entity for UC-02 (Maintain Chain-of-Custody Log) and UC-08 (View Custody History).
- */
+import java.time.LocalDateTime;
+import java.util.UUID;
+
 @Entity
-@Table(name = "custody_logs", indexes = {
-        @Index(name = "idx_evidence_id", columnList = "evidence_id"),
-        @Index(name = "idx_actor_id", columnList = "actor_id"),
-        @Index(name = "idx_timestamp", columnList = "timestamp_recorded")
-})
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
+@Table(name = "custody_logs")
 public class CustodyLog {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "log_id", nullable = false, updatable = false, length = 36)
+    private String logId;
 
-    @Column(name = "evidence_id", nullable = false)
-    private Long evidenceId;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "evidence_id", nullable = false)
+    private Evidence evidence;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "actor_id", nullable = false)
     private User actor;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "action", nullable = false)
-    private ActionType action;
+    @Column(name = "actor_role", nullable = false, length = 30)
+    private Role actorRole;
 
-    @Column(name = "timestamp_recorded", nullable = false)
-    private LocalDateTime timestampRecorded;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "action_type", nullable = false, length = 20)
+    private ActionType actionType;
 
-    @Column(name = "ip_address")
+    @Column(name = "ip_address", length = 45)
     private String ipAddress;
 
-    @Column(name = "details", columnDefinition = "TEXT")
-    private String details;
+    @Column(nullable = false)
+    private LocalDateTime timestamp;
 
     @Column(name = "is_suspicious", nullable = false)
-    private Boolean isSuspicious = false;
+    private boolean suspicious;
 
-    @Column(name = "anomaly_reason", columnDefinition = "TEXT")
-    private String anomalyReason;
+    @PrePersist
+    public void onCreate() {
+        if (this.logId == null || this.logId.isBlank()) {
+            this.logId = UUID.randomUUID().toString();
+        }
+        if (this.timestamp == null) {
+            this.timestamp = LocalDateTime.now();
+        }
+        if (this.actorRole == null && this.actor != null) {
+            this.actorRole = this.actor.getRole();
+        }
+    }
 
-    /**
-     * Factory method to create a custody log entry.
-     */
-    public static CustodyLog createEntry(
-            Long evidenceId,
-            User actor,
-            ActionType action,
-            String ipAddress,
-            String details
-    ) {
-        CustodyLog log = new CustodyLog();
-        log.setEvidenceId(evidenceId);
-        log.setActor(actor);
-        log.setAction(action);
-        log.setIpAddress(ipAddress);
-        log.setDetails(details);
-        log.setTimestampRecorded(LocalDateTime.now());
-        log.setIsSuspicious(false);
-        return log;
+    public String getLogId() {
+        return logId;
+    }
+
+    public void setLogId(String logId) {
+        this.logId = logId;
+    }
+
+    public Evidence getEvidence() {
+        return evidence;
+    }
+
+    public void setEvidence(Evidence evidence) {
+        this.evidence = evidence;
+    }
+
+    public User getActor() {
+        return actor;
+    }
+
+    public void setActor(User actor) {
+        this.actor = actor;
+    }
+
+    public Role getActorRole() {
+        return actorRole;
+    }
+
+    public void setActorRole(Role actorRole) {
+        this.actorRole = actorRole;
+    }
+
+    public ActionType getActionType() {
+        return actionType;
+    }
+
+    public void setActionType(ActionType actionType) {
+        this.actionType = actionType;
+    }
+
+    public String getIpAddress() {
+        return ipAddress;
+    }
+
+    public void setIpAddress(String ipAddress) {
+        this.ipAddress = ipAddress;
+    }
+
+    public LocalDateTime getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(LocalDateTime timestamp) {
+        this.timestamp = timestamp;
+    }
+
+    public boolean isSuspicious() {
+        return suspicious;
+    }
+
+    public void setSuspicious(boolean suspicious) {
+        this.suspicious = suspicious;
     }
 }

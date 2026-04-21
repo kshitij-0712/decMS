@@ -1,234 +1,57 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flag Anomalies - Forensic Module</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-        }
-        header {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 30px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        h1 {
-            color: #333;
-            margin-bottom: 5px;
-        }
-        .subtitle {
-            color: #666;
-            font-size: 14px;
-            margin-top: 5px;
-        }
-        .card {
-            background: white;
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        .card h2 {
-            color: #333;
-            font-size: 16px;
-            margin-bottom: 15px;
-            border-bottom: 2px solid #ff6b6b;
-            padding-bottom: 10px;
-        }
-        .anomaly-entry {
-            padding: 15px;
-            margin-bottom: 12px;
-            background: #ffe0e0;
-            border: 2px solid #ff6b6b;
-            border-radius: 6px;
-            border-left: 5px solid #ff6b6b;
-        }
-        .anomaly-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-        .anomaly-title {
-            font-weight: bold;
-            color: #c33;
-            font-size: 15px;
-        }
-        .anomaly-timestamp {
-            color: #999;
-            font-size: 12px;
-        }
-        .anomaly-details {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-            margin-bottom: 10px;
-            font-size: 13px;
-        }
-        .anomaly-detail {
-            padding: 5px 0;
-        }
-        .detail-label {
-            color: #666;
-            font-weight: bold;
-        }
-        .detail-value {
-            color: #333;
-        }
-        .anomaly-reason {
-            padding: 10px;
-            background: #fff0f0;
-            border-left: 3px solid #ff6b6b;
-            margin-top: 10px;
-            border-radius: 3px;
-        }
-        .anomaly-reason-label {
-            font-weight: bold;
-            color: #c33;
-            margin-bottom: 5px;
-        }
-        .anomaly-reason-text {
-            color: #333;
-            font-size: 13px;
-        }
-        .alert {
-            padding: 15px;
-            margin-bottom: 20px;
-            border-radius: 4px;
-        }
-        .alert-info {
-            background: #e8f4f8;
-            color: #005a87;
-            border-left: 4px solid #005a87;
-        }
-        .empty-state {
-            text-align: center;
-            padding: 40px;
-            color: #999;
-        }
-        .pagination {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-top: 20px;
-        }
-        .pagination a, .pagination span {
-            padding: 8px 12px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            text-decoration: none;
-            color: #667eea;
-        }
-        .pagination .current {
-            background: #667eea;
-            color: white;
-            border-color: #667eea;
-        }
-        .back-link {
-            display: inline-block;
-            margin-bottom: 20px;
-            padding: 10px 15px;
-            background: #667eea;
-            color: white;
-            text-decoration: none;
-            border-radius: 4px;
-        }
-        .severity-badge {
-            display: inline-block;
-            background: #ff6b6b;
-            color: white;
-            padding: 3px 8px;
-            border-radius: 3px;
-            font-size: 11px;
-            font-weight: bold;
-        }
-    </style>
-</head>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/fragments :: appHead('Flagged Anomalies')}"></head>
 <body>
-    <div class="container">
-        <header>
-            <a href="/forensic/custody" class="back-link">← Back to Dashboard</a>
-            <h1>🚩 Flagged Anomalies</h1>
-            <p class="subtitle">Detected suspicious custody activities requiring investigation</p>
-            <p class="subtitle" style="margin-top: 10px;">Total Anomalies: <strong th:text="${totalElements}"></strong></p>
-        </header>
+<div th:replace="~{layout/fragments :: appBackdrop}"></div>
 
-        <div class="alert alert-info">
-            <strong>ℹ️ Note:</strong> Anomalies are automatically detected when unusual patterns are observed, such as multiple rapid accesses, access from suspicious IPs, or unusual action sequences.
-        </div>
+<div class="app-shell">
+    <aside th:replace="~{layout/fragments :: sideNav('for-history')}"></aside>
+    <main class="app-main">
+        <header th:replace="~{layout/fragments :: topBar('Suspicious Custody Entries', 'UC-02 anomaly monitoring feed')}" ></header>
+        <section class="app-content">
+            <div th:replace="~{layout/fragments :: alerts}"></div>
 
-        <div class="card">
-            <h2>⚠️ Suspicious Custody Entries</h2>
-            
-            <div th:if="${anomalies.isEmpty()}" class="empty-state">
-                <p>✓ No suspicious activities detected. System is operating normally.</p>
-            </div>
+            <article class="card">
+                <h2>Flagged records</h2>
 
-            <div th:each="anomaly : ${anomalies}" class="anomaly-entry">
-                
-                <div class="anomaly-header">
-                    <div>
-                        <span class="anomaly-title" th:text="${anomaly.action}"></span>
-                        <span class="severity-badge">SUSPICIOUS</span>
-                    </div>
-                    <div class="anomaly-timestamp" th:text="${#temporals.format(anomaly.timestampRecorded, 'dd/MM/yyyy HH:mm:ss')}"></div>
+                <div class="table-wrap" th:if="${!#lists.isEmpty(anomalies)}">
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th>Evidence</th>
+                            <th>Action</th>
+                            <th>Actor</th>
+                            <th>Role</th>
+                            <th>IP Address</th>
+                            <th>Timestamp</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="a : ${anomalies}">
+                            <td class="mono" th:text="${a.evidence.evidenceId}">E-001</td>
+                            <td><span class="badge badge-denied" th:text="${a.actionType}">ACCESS</span></td>
+                            <td th:text="${a.actor != null ? a.actor.name : '—'}">actor</td>
+                            <td th:text="${a.actorRole}">role</td>
+                            <td class="mono" th:text="${a.ipAddress != null ? a.ipAddress : '—'}">ip</td>
+                            <td th:text="${#temporals.format(a.timestamp, 'yyyy-MM-dd HH:mm:ss')}">time</td>
+                        </tr>
+                        </tbody>
+                    </table>
                 </div>
 
-                <div class="anomaly-details">
-                    <div class="anomaly-detail">
-                        <span class="detail-label">Evidence ID:</span>
-                        <span class="detail-value" th:text="${anomaly.evidenceId}"></span>
-                    </div>
-                    <div class="anomaly-detail">
-                        <span class="detail-label">Actor:</span>
-                        <span class="detail-value" th:text="${anomaly.actor.fullName}"></span>
-                    </div>
-                    <div class="anomaly-detail">
-                        <span class="detail-label">Role:</span>
-                        <span class="detail-value" th:text="${anomaly.actor.role}"></span>
-                    </div>
-                    <div class="anomaly-detail">
-                        <span class="detail-label">IP Address:</span>
-                        <span class="detail-value" th:text="${anomaly.ipAddress}"></span>
-                    </div>
+                <div class="empty-state" th:if="${#lists.isEmpty(anomalies)}">
+                    <h3>No anomalies flagged</h3>
+                    <p>Suspicious custody entries will appear here once flagged in logs.</p>
                 </div>
 
-                <div class="anomaly-reason">
-                    <div class="anomaly-reason-label">🔍 Anomaly Detected:</div>
-                    <div class="anomaly-reason-text" th:text="${anomaly.anomalyReason}"></div>
+                <div class="button-row" style="margin-top: 0.8rem;">
+                    <a class="btn btn-secondary" th:href="@{/forensic/custody}">Back to custody dashboard</a>
                 </div>
+            </article>
+        </section>
+    </main>
+</div>
 
-                <div style="margin-top: 8px; font-size: 12px; color: #666;">
-                    <strong>Details:</strong> <span th:text="${anomaly.details}"></span>
-                </div>
-            </div>
-
-            <!-- Pagination -->
-            <div th:if="${totalElements > 0}" class="pagination">
-                <a th:if="${currentPage > 0}" th:href="@{/forensic/anomalies(page=${currentPage - 1})}">Previous</a>
-                <span th:text="${currentPage + 1} + ' / ' + ${totalPages}"></span>
-                <a th:if="${currentPage + 1 < totalPages}" th:href="@{/forensic/anomalies(page=${currentPage + 1})}">Next</a>
-            </div>
-        </div>
-
-        <footer style="text-align: center; color: white; padding: 20px;">
-            <p>Digital Evidence & Chain-of-Custody Management System - Forensic Module</p>
-        </footer>
-    </div>
+<script th:src="@{/js/app.js}"></script>
 </body>
 </html>

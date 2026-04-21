@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/fragments :: appHead('User Form')}"></head>
+<body>
+<div th:replace="~{layout/fragments :: appBackdrop}"></div>
+<div class="app-shell">
+    <aside th:replace="~{layout/fragments :: sideNav('adm-users')}"></aside>
+    <main class="app-main">
+        <header th:replace="~{layout/fragments :: topBar('User Form', 'UC-07 — Factory Method pattern')}"></header>
+        <section class="app-content">
+
+            <div th:if="${errorMessage}" class="badge badge-danger" style="display:block;padding:10px;margin-bottom:16px;" th:text="${errorMessage}"></div>
+
+            <article class="card">
+                <h2 th:text="${editMode} ? 'Edit User' : 'Create New User'">User Form</h2>
+
+                <form th:action="${editMode} ? @{/admin/users/{id}/edit(id=${userForm.userId})} : @{/admin/users/new}"
+                      th:object="${userForm}"
+                      method="post"
+                      class="form-grid"
+                      style="margin-top:16px;">
+
+                    <label>
+                        <span>User ID / Username <span style="color:red">*</span></span>
+                        <input type="text" th:field="*{userId}" th:readonly="${editMode}" placeholder="e.g. inv-002" required/>
+                        <span th:if="${editMode}" style="color:#888;font-size:11px;display:block;margin-top:4px;">(Cannot be changed after creation)</span>
+                    </label>
+
+                    <label>
+                        <span>Full Name <span style="color:red">*</span></span>
+                        <input type="text" th:field="*{name}" placeholder="e.g. John Smith"/>
+                        <span th:if="${#fields.hasErrors('name')}" style="color:red;font-size:12px;" th:errors="*{name}"></span>
+                    </label>
+
+                    <label>
+                        <span>Email <span style="color:red">*</span></span>
+                        <input type="email" th:field="*{email}" placeholder="e.g. john@decms.com"/>
+                        <span th:if="${#fields.hasErrors('email')}" style="color:red;font-size:12px;" th:errors="*{email}"></span>
+                    </label>
+
+                    <label>
+                        <span>Password
+                            <span th:unless="${editMode}" style="color:red">*</span>
+                            <span th:if="${editMode}" style="color:#888;font-size:11px;">(leave blank to keep current)</span>
+                        </span>
+                        <input type="password" th:field="*{password}" placeholder="Min 6 characters"/>
+                        <span th:if="${#fields.hasErrors('password')}" style="color:red;font-size:12px;" th:errors="*{password}"></span>
+                    </label>
+
+                    <label>
+                        <span>Department</span>
+                        <input type="text" th:field="*{department}" placeholder="e.g. Investigation"/>
+                    </label>
+
+                    <label>
+                        <span>Role <span style="color:red">*</span></span>
+                        <select th:field="*{role}">
+                            <option value="">— Select Role —</option>
+                            <option th:each="role : ${roles}"
+                                    th:value="${role}"
+                                    th:text="${role}">
+                            </option>
+                        </select>
+                        <span th:if="${#fields.hasErrors('role')}" style="color:red;font-size:12px;" th:errors="*{role}"></span>
+                    </label>
+
+                    <div class="button-row" style="margin-top:8px;">
+                        <button type="submit" class="btn btn-primary"
+                                th:text="${editMode} ? 'Save Changes' : 'Create User'">Submit</button>
+                        <a th:href="@{/admin/users}" class="btn btn-primary" style="background:#718096;">Cancel</a>
+                    </div>
+                </form>
+            </article>
+        </section>
+    </main>
+</div>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

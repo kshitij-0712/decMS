@@ -1,52 +1,77 @@
-# foren Branch - Forensic Module
+# DECMS Integrated Branch (foren)
 
-This branch is dedicated to the Forensic role implementation in the Digital Evidence and Chain-of-Custody Management System.
+This branch is the **integration workspace** for the Digital Evidence and Chain-of-Custody Management System, with focus on preserving the Forensic ownership while keeping cross-role flows operational.
 
 ## Branch Objective
 
-Deliver the complete Forensic vertical slice (`controller + service + views`) for custody tracking and historical traceability, including automatic logging through a decorator.
+Integrate role modules into a single Spring Boot MVC application and keep it aligned with:
+- `PLAN_OF_ACTION.md` section 7 ownership mapping (authoritative)
+- shared UI system contract (layout fragments + shared CSS/JS)
+- cross-role integration points (UC-01/03/05/06 -> UC-02, and UC-04 reads custody data)
 
-## Owner
+## Team & Ownership
 
-- Member: Kishore H N
-- PRN: PES2UG23CS278
-- Module folder: `forensic/`
+| Member | PRN | Role subfolder | Major UC | Minor UC |
+|---|---|---|---|---|
+| Kshitij | PES2UG23CS290 | `investigator/` | UC-01 Upload & Seal Digital Evidence | UC-06 View Evidence Details |
+| Kishore H N | PES2UG23CS278 | `forensic/` | UC-02 Maintain Chain-of-Custody Log | UC-08 View Custody History |
+| Likith N | PES2UG23CS306 | `legal/` | UC-03 Verify Evidence Integrity | UC-05 Request Evidence Access |
+| Khizer Pasha | PES2UG23CS275 | `admin/` | UC-04 Generate Audit Report | UC-07 Manage Users & Roles |
 
-## Owned Use Cases
+## Module Ownership Notes
 
-- Major UC-02: Maintain Chain-of-Custody Log
-- Minor UC-08: View Custody History
+- **Forensic ownership (this branch):**
+  - `forensic/controller/ForensicController.java`
+  - `forensic/service/CustodyLogService.java`
+  - Forensic templates under `templates/forensic/`
+- **Structural pattern contribution:** Decorator (`common/decorator/*`)
+- **SOLID focus:** Open/Closed Principle (OCP)
 
-## Planned Scope
+## Current Scope in this Integrated Branch
 
-- `forensic/controller/ForensicController.java`
-  - `GET /forensic/custody`
-  - `GET /forensic/custody/{evidenceId}`
-  - `GET /forensic/history/{evidenceId}`
-- `forensic/service/CustodyLogService.java`
-- `forensic/service/CustodyHistoryService.java`
-- `common/decorator/EvidenceAccessService.java`
-- `common/decorator/BaseEvidenceAccessService.java`
-- `common/decorator/LoggingDecorator.java`
-- `templates/forensic/custody-dashboard.html`
-- `templates/forensic/custody-log-entry.html`
-- `templates/forensic/custody-history.html`
-- `templates/forensic/flag-anomaly.html`
+- Forensic UC-02 and UC-08 endpoints are wired in the integrated package layout (`com.decms.forensic.*`).
+- Investigator, Legal, and Admin modules coexist and call shared repositories/services.
+- Shared UI shell is reused across role pages:
+  - `templates/layout/fragments.html`
+  - `templates/layout/base.html`
+  - `static/css/styles.css`
+  - `static/js/app.js`
 
-## Integration Dependencies
+## Quick Start
 
-- Receives events from investigator, legal, and admin flows via service calls.
-- Writes immutable custody entries through `CustodyLogRepository`.
-- Publishes suspicious access events to observer listeners when policy rules match.
-- Supports downstream reporting in admin by exposing complete custody timelines.
+### Prerequisites
+- Java 17+
+- Maven 3.9+
 
-## Pattern and Principle Ownership
+### Run
 
-- Design pattern contribution: Decorator (`common/decorator/LoggingDecorator.java`)
-- Design principle focus: Open/Closed Principle (OCP)
+```bash
+mvn clean spring-boot:run
+```
 
-## Done Criteria
+Default dev login users are seeded by `DataBootstrapConfig`:
+- `inv-001` / `password`
+- `foren-001` / `password`
+- `legal-001` / `password`
+- `admin-001` / `password`
 
-- Every relevant evidence action is recorded with actor, action, timestamp, and IP.
-- Forensic dashboard shows latest entries and highlights suspicious records.
-- Custody history supports filters and pagination for evidence-specific investigation.
+## Forensic Endpoints
+
+- `GET /forensic/custody`
+- `GET /forensic/custody/{evidenceId}`
+- `GET /forensic/history/{evidenceId}`
+- `GET /forensic/anomalies`
+
+## Integration Expectations
+
+- UC-01 upload creates custody `UPLOAD` entries.
+- UC-06 evidence details access creates custody `VIEW` entries.
+- UC-03 verification creates custody `VERIFY` entries and can trigger observer events.
+- UC-05 access requests create custody `ACCESS` entries and feed admin approval queues.
+- UC-04 report generation reads evidence + custody history for full audit timeline.
+
+## References
+
+- `PLAN_OF_ACTION.md`
+- `AGENTS.md`
+- `FORENSIC_MODULE.md`

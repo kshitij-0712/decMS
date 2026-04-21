@@ -1,24 +1,30 @@
 package com.decms.repository;
 
 import com.decms.model.Evidence;
+import com.decms.model.EvidenceStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
 
-import java.util.Optional;
+import java.util.List;
 
-/**
- * Repository for Evidence entity.
- */
-@Repository
-public interface EvidenceRepository extends JpaRepository<Evidence, Long> {
+public interface EvidenceRepository extends JpaRepository<Evidence, String> {
 
-    /**
-     * Find evidence by case number.
-     */
-    Optional<Evidence> findByCaseNumber(String caseNumber);
+    List<Evidence> findByCaseIdContainingIgnoreCaseOrderByUploadTimestampDesc(String caseId);
 
-    /**
-     * Find evidence by case ID.
-     */
-    Optional<Evidence> findByCaseId(String caseId);
+    List<Evidence> findByStatusOrderByUploadTimestampDesc(EvidenceStatus status);
+
+    List<Evidence> findByCaseIdContainingIgnoreCaseAndStatusOrderByUploadTimestampDesc(String caseId, EvidenceStatus status);
+
+    List<Evidence> findAllByOrderByUploadTimestampDesc();
+
+    List<Evidence> findByUploadedBy_UserIdOrderByUploadTimestampDesc(String uploadedByUserId);
+
+    List<Evidence> findByUploadedBy_UserIdAndCaseIdContainingIgnoreCaseOrderByUploadTimestampDesc(String uploadedByUserId, String caseId);
+
+    List<Evidence> findByUploadedBy_UserIdAndStatusOrderByUploadTimestampDesc(String uploadedByUserId, EvidenceStatus status);
+
+    List<Evidence> findByUploadedBy_UserIdAndCaseIdContainingIgnoreCaseAndStatusOrderByUploadTimestampDesc(String uploadedByUserId, String caseId, EvidenceStatus status);
+
+    List<Evidence> findByCaseId(String caseId);
+
+    List<Evidence> findByEvidenceIdInOrderByUploadTimestampDesc(List<String> evidenceIds);
 }

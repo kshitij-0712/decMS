@@ -1,47 +1,39 @@
-# Byte-compiled / optimized / DLL files
-__pycache__/
-*.py[cod]
-*$py.class
-
-# Maven
 target/
+
+# Maven metadata
 pom.xml.tag
 pom.xml.releaseBackup
 pom.xml.versionsBackup
 pom.xml.next
 release.properties
 
-# IDEs
+# IDE
 .idea/
 .vscode/
+*.iml
 *.swp
 *.swo
 *~
-.DS_Store
-*.iml
 
-# Spring Boot
+# Runtime folders
+uploads/
+data/
+evidence-files/
+
+# Build artifacts
 *.jar
 *.war
+
+# Logs
+*.log
+decms.log
 spring-boot-logs/
 
-# Database
-*.db
-*.sql.log
-decms.log
-
-# Evidence Files
-evidence-files/
-uploads/
-
-# Environment
+# Environment overrides
 .env
 .env.local
 *.properties.local
 
-# OS
+# OS files
 .DS_Store
 Thumbs.db
-
-# Git
-.git/

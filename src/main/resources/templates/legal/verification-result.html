@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/fragments :: appHead('Verification Result')}"></head>
+<body>
+<div th:replace="~{layout/fragments :: appBackdrop}"></div>
+
+<div class="app-shell">
+    <aside th:replace="~{layout/fragments :: sideNav('leg-verify')}"></aside>
+    <main class="app-main">
+        <header th:replace="~{layout/fragments :: topBar('Verification Result', 'Hash comparison outcome for selected evidence')}"></header>
+        <section class="app-content">
+            <div th:replace="~{layout/fragments :: alerts}"></div>
+
+            <article class="card">
+                <h2 th:text="${verification.integrityVerified} ? 'Integrity Verified' : 'Tampering Detected'">Verification Result</h2>
+                <p th:text="${verification.statusMessage}">Result message</p>
+
+                <div class="stack-list">
+                    <p><strong>Evidence ID:</strong> <span class="mono" th:text="${verification.evidenceId}">EVD-0000</span></p>
+                    <p><strong>Case Number:</strong> <span th:text="${verification.caseNumber} ?: 'N/A'">CASE-0000</span></p>
+                    <p><strong>Stored Hash:</strong> <span class="mono" th:text="${verification.storedHash} ?: 'N/A'">N/A</span></p>
+                    <p><strong>Computed Hash:</strong> <span class="mono" th:text="${verification.computedHash} ?: 'N/A'">N/A</span></p>
+                </div>
+
+                <p>
+                    <span class="badge"
+                          th:classappend="${verification.integrityVerified} ? ' badge-verified' : ' badge-denied'"
+                          th:text="${verification.integrityVerified} ? 'VERIFIED' : 'MISMATCH'">VERIFIED</span>
+                </p>
+
+                <div class="button-row">
+                    <a class="btn btn-primary" th:href="@{/legal/verify}">Run Another Verification</a>
+                    <a class="btn btn-secondary"
+                       th:href="@{/legal/access(evidenceId=${verification.evidenceId}, caseNumber=${verification.caseNumber})}">
+                        Request Access
+                    </a>
+                </div>
+            </article>
+        </section>
+    </main>
+</div>
+
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

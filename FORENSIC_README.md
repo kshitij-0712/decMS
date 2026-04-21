@@ -16,7 +16,6 @@ This is a group OOAD project for managing digital evidence in forensic investiga
 
 ### Prerequisites
 - Java 17+
-- MySQL 8+
 - Maven 3.6+
 
 ### Setup
@@ -30,9 +29,9 @@ cd decMS
 2. **Configure Database**
 Edit `src/main/resources/application.properties`:
 ```properties
-spring.datasource.url=jdbc:mysql://localhost:3306/decms_db
-spring.datasource.username=root
-spring.datasource.password=your_password
+spring.datasource.url=jdbc:h2:file:./data/decms;MODE=MySQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+spring.datasource.username=sa
+spring.datasource.password=
 ```
 
 3. **Build & Run**
@@ -91,8 +90,7 @@ MVC Pattern Implementation:
 1. **SRP** - Single Responsibility
 2. **OCP** - Open/Closed ✓ **Forensic Module**
 3. **LSP** - Liskov Substitution
-4. **ISP** - Interface Segregation
-5. **DIP** - Dependency Inversion
+4. **DIP** - Dependency Inversion
 
 ## Key Features
 
@@ -112,7 +110,7 @@ MVC Pattern Implementation:
 
 - **Backend**: Spring Boot 3.x, Spring MVC
 - **Frontend**: Thymeleaf, HTML5, CSS3
-- **Database**: MySQL 8
+- **Database**: H2 file database (MySQL compatibility mode)
 - **ORM**: Hibernate/JPA
 - **Security**: Spring Security, BCrypt
 - **Build**: Maven
@@ -146,10 +144,10 @@ Tables for Forensic Module:
 
 Sample users are pre-loaded:
 ```
-forensic1 / password
-investigator1 / password
-legal1 / password
-admin1 / password
+foren-001 / password
+inv-001 / password
+legal-001 / password
+admin-001 / password
 ```
 
 ## Contributing

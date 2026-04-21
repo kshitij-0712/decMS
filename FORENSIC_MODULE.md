@@ -39,7 +39,7 @@ This is the **Forensic Module** implementation for the Digital Evidence & Chain-
 ## Design Patterns & Principles
 
 ### Design Pattern: DECORATOR (Structural)
-**Location**: `com.decms.decorator` package
+**Location**: `com.decms.common.decorator` package
 
 ```
 EvidenceAccessService (Interface)
@@ -58,9 +58,9 @@ Every evidence access operation is transparently decorated with custody logging 
 
 ### Additional Principles Applied
 - **Single Responsibility Principle (SRP)**
-  - `CustodyLogService` → custody logging only
-  - `CustodyHistoryService` → history retrieval only
-  - `BaseEvidenceAccessService` → core evidence logic only
+  - `CustodyLogService` -> custody logging and retrieval only
+  - `LoggingDecorator` -> custody decoration only
+  - `BaseEvidenceAccessService` -> base evidence action contract only
 
 - **Liskov Substitution Principle (LSP)**
   - All user types (Investigator, ForensicAnalyst, etc.) are interchangeable
@@ -73,21 +73,18 @@ Every evidence access operation is transparently decorated with custody logging 
 
 ```
 src/main/java/com/decms/
-├── controller/
-│   └── ForensicController.java              # REST endpoints
-├── service/
-│   ├── CustodyLogService.java               # Custody logging logic
-│   └── CustodyHistoryService.java           # History viewing logic
-├── decorator/
+├── forensic/controller/
+│   └── ForensicController.java              # Forensic endpoints
+├── forensic/service/
+│   └── CustodyLogService.java               # Custody logging + retrieval
+├── common/decorator/
 │   ├── EvidenceAccessService.java           # Interface
 │   ├── BaseEvidenceAccessService.java       # Core implementation
 │   └── LoggingDecorator.java                # Decorator with logging
 ├── model/
 │   ├── User.java                            # Base user entity
-│   ├── Investigator.java                    # User role
-│   ├── ForensicAnalyst.java                 # User role
-│   ├── LegalOfficer.java                    # User role
-│   ├── Administrator.java                   # User role
+│   ├── Role.java                            # Role enum
+│   ├── UserStatus.java                      # User status enum
 │   ├── CustodyLog.java                      # Core entity
 │   ├── Evidence.java                        # Evidence entity
 │   └── ActionType.java                      # Enum
@@ -97,7 +94,7 @@ src/main/java/com/decms/
 │   ├── EvidenceRepository.java              # JPA repository
 ├── config/
 │   └── SecurityConfig.java                  # Spring Security setup
-└── DecmsApplication.java                    # Main Spring Boot class
+└── DigitalEvidenceApplication.java          # Main Spring Boot class
 
 src/main/resources/
 ├── application.properties                   # App configuration
@@ -128,7 +125,7 @@ src/main/resources/
 |-----------|-----------|
 | Framework | Spring Boot 3.x |
 | Web | Spring MVC + Thymeleaf |
-| Database | MySQL 8 + JPA/Hibernate |
+| Database | H2 (file) + JPA/Hibernate |
 | Security | Spring Security + BCrypt |
 | Build | Maven |
 
@@ -142,7 +139,7 @@ src/main/resources/
 
 **`custody_logs`** - Chain of custody tracking
 - Records every evidence access
-- Indexes on `evidence_id`, `actor_id`, `timestamp_recorded`
+- Indexes on `evidence_id`, `actor_id`, `timestamp`
 - Flags suspicious entries
 
 **`evidence`** - Digital evidence items
@@ -158,19 +155,11 @@ src/main/resources/
 ## Decorator Pattern Example
 
 ```java
-// Without decorator - only core business logic
-Evidence evidence = baseService.viewEvidence(evidenceId, user, ip);
+// Without decorator - no custody side effect
+baseEvidenceAccessService.recordEvidenceAction(evidenceId, actorId, ActionType.VIEW, ipAddress);
 
-// With LoggingDecorator - transparently logs the action
-@Override
-public Evidence viewEvidence(Long evidenceId, User actor, String ipAddress) {
-    Evidence result = baseService.viewEvidence(evidenceId, actor, ipAddress);
-    
-    // Automatic logging happens here
-    logCustodyAction(evidenceId, actor, ActionType.VIEW, ipAddress, ...);
-    
-    return result;
-}
+// With LoggingDecorator - transparently logs via custody service
+loggingDecorator.recordEvidenceAction(evidenceId, actorId, ActionType.VIEW, ipAddress);
 ```
 
 ## Testing & Usage
@@ -178,14 +167,14 @@ public Evidence viewEvidence(Long evidenceId, User actor, String ipAddress) {
 ### Sample Users (Pre-loaded)
 ```
 Forensic User:
-  Username: forensic1
+  Username: foren-001
   Password: password (BCrypt hashed)
-  Role: FORENSIC
+  Role: FORENSIC_ANALYST
 ```
 
 ### How to Run
-1. Configure MySQL database in `application.properties`
-2. Run `DecmsApplication.java`
+1. Configure datasource in `src/main/resources/application.properties`
+2. Run `DigitalEvidenceApplication.java`
 3. Access `http://localhost:8080/forensic/custody`
 
 ## Integration with Other Modules

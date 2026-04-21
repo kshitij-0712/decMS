@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/fragments :: appHead('Verify Integrity')}"></head>
+<body>
+<div th:replace="~{layout/fragments :: appBackdrop}"></div>
+
+<div class="app-shell">
+    <aside th:replace="~{layout/fragments :: sideNav('leg-verify')}"></aside>
+    <main class="app-main">
+        <header th:replace="~{layout/fragments :: topBar('Verify Evidence Integrity', 'UC-03 legal verification workflow')}"></header>
+        <section class="app-content">
+            <div th:replace="~{layout/fragments :: alerts}"></div>
+
+            <article class="card">
+                <h2>Select evidence for verification</h2>
+                <p>Run a SHA-256 comparison for stored and computed hashes.</p>
+
+                <div class="table-wrap" th:if="${!#lists.isEmpty(evidenceOptions)}">
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th>Evidence ID</th>
+                            <th>Action</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="evidenceId : ${evidenceOptions}">
+                            <td class="mono" th:text="${evidenceId}">EVD-0000</td>
+                            <td>
+                                <form th:action="@{/legal/verify/{evidenceId}(evidenceId=${evidenceId})}" method="post">
+                                    <button type="submit" class="btn btn-primary">Verify Integrity</button>
+                                </form>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <section class="card" th:if="${lastVerification != null}" style="margin-top: 1rem;">
+                    <h3 th:text="${lastVerification.integrityVerified} ? 'Integrity Verified' : 'Tampering Detected'">Verification Result</h3>
+                    <p th:text="${lastVerification.statusMessage}">Result message</p>
+                    <div class="stack-list">
+                        <p><strong>Evidence ID:</strong> <span class="mono" th:text="${lastVerification.evidenceId}">EVD-0000</span></p>
+                        <p><strong>Case Number:</strong> <span th:text="${lastVerification.caseNumber} ?: 'N/A'">CASE-0000</span></p>
+                        <p><strong>Stored Hash:</strong> <span class="mono" th:text="${lastVerification.storedHash} ?: 'N/A'">N/A</span></p>
+                        <p><strong>Computed Hash:</strong> <span class="mono" th:text="${lastVerification.computedHash} ?: 'N/A'">N/A</span></p>
+                    </div>
+                    <p>
+                        <span class="badge"
+                              th:classappend="${lastVerification.integrityVerified} ? ' badge-verified' : ' badge-denied'"
+                              th:text="${lastVerification.integrityVerified} ? 'VERIFIED' : 'MISMATCH'">MISMATCH</span>
+                    </p>
+                    <div class="button-row">
+                        <a class="btn btn-secondary"
+                           th:href="@{/legal/access(evidenceId=${lastVerification.evidenceId}, caseNumber=${lastVerification.caseNumber})}">
+                            Request Access
+                        </a>
+                    </div>
+                </section>
+
+                <div class="empty-state" th:if="${#lists.isEmpty(evidenceOptions)}">
+                    <h3>No evidence available</h3>
+                    <p>Evidence options will appear after investigator uploads records.</p>
+                </div>
+            </article>
+        </section>
+    </main>
+</div>
+
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>
